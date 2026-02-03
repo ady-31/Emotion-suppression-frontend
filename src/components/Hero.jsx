@@ -1,7 +1,9 @@
 import { useEffect, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import FaceVisualization from './FaceVisualization'
 
 const Hero = () => {
+  const navigate = useNavigate()
   const visualRef = useRef(null)
   const svgRef = useRef(null)
 
@@ -61,12 +63,12 @@ const Hero = () => {
             AI-based analysis of facial behavior and speech timing to detect suppressed emotional expression
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-            <a 
-              href="#" 
+            <button 
+              onClick={() => navigate('/upload')}
               className="btn-ripple inline-flex items-center justify-center px-8 py-3.5 text-base font-medium bg-gradient-to-br from-accent-cyan to-accent-violet text-bg-primary rounded-lg shadow-glow-cyan hover:shadow-glow-cyan-lg hover:-translate-y-0.5 transition-all duration-400"
             >
               Start Analysis
-            </a>
+            </button>
             <a 
               href="#how-it-works"
               onClick={(e) => handleSmoothScroll(e, '#how-it-works')}

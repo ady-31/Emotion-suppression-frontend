@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 const Navbar = () => {
+  const navigate = useNavigate()
   const [scrolled, setScrolled] = useState(false)
 
   useEffect(() => {
@@ -67,12 +69,12 @@ const Navbar = () => {
             </a>
           </li>
           <li>
-            <a 
-              href="#"
+            <button 
+              onClick={() => navigate('/upload')}
               className="px-5 py-2.5 bg-gradient-subtle border border-white/[0.08] rounded-md text-text-secondary hover:text-text-primary hover:border-accent-cyan transition-all duration-200 text-[0.95rem]"
             >
               Get Started
-            </a>
+            </button>
           </li>
         </ul>
       </div>

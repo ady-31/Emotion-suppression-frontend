@@ -1,4 +1,7 @@
+import { useNavigate } from 'react-router-dom'
+
 const FinalCTA = () => {
+  const navigate = useNavigate()
   return (
     <section className="py-28 lg:py-32 bg-bg-secondary relative overflow-hidden">
       {/* Background gradients */}
@@ -13,12 +16,12 @@ const FinalCTA = () => {
           <p className="text-text-secondary text-lg mb-10">
             Uncover what lies beneath the surface of human expression
           </p>
-          <a 
-            href="#" 
+          <button 
+            onClick={() => navigate('/upload')}
             className="btn-ripple inline-flex items-center justify-center px-12 py-4 text-lg font-medium bg-gradient-to-br from-accent-cyan to-accent-violet text-bg-primary rounded-lg shadow-glow-cyan hover:shadow-glow-cyan-lg hover:-translate-y-0.5 transition-all duration-400"
           >
             Begin Analysis
-          </a>
+          </button>
         </div>
       </div>
     </section>
