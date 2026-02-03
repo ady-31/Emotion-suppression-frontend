@@ -1,0 +1,147 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0a0a0f;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #2a2a3a;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3a3a4a;
+}
+
+/* Smooth scroll */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Gradient text utility */
+.gradient-text {
+  background: linear-gradient(135deg, #00d4d4 0%, #8b5cf6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Hero title gradient */
+.hero-title-gradient {
+  background: linear-gradient(135deg, #f0f0f5 0%, #a0a0b0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Signal line animation */
+.signal-line {
+  stroke-dasharray: 8 4;
+  animation: dash 3s linear infinite;
+}
+
+.signal-line-delay-1 {
+  animation-delay: 0.5s;
+}
+
+.signal-line-delay-2 {
+  animation-delay: 1s;
+}
+
+/* Data point animations with delays */
+.data-point {
+  animation: data-flow 2s ease-in-out infinite;
+}
+
+.data-point-delay-1 { animation-delay: 0.2s; }
+.data-point-delay-2 { animation-delay: 0.4s; }
+.data-point-delay-3 { animation-delay: 0.1s; }
+.data-point-delay-4 { animation-delay: 0.3s; }
+.data-point-delay-5 { animation-delay: 0.5s; }
+
+/* Pulse ring animation */
+.pulse-ring {
+  animation: pulse-ring 3s ease-out infinite;
+}
+
+.pulse-ring-delay {
+  animation-delay: 1.5s;
+}
+
+/* Scroll animation classes */
+.animate-on-scroll {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.animate-on-scroll.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Button ripple effect */
+.btn-ripple {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-ripple .ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(0);
+  animation: ripple-effect 0.6s linear;
+  pointer-events: none;
+}
+
+@keyframes ripple-effect {
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+@keyframes dash {
+  to {
+    stroke-dashoffset: -24;
+  }
+}
+
+@keyframes data-flow {
+  0%, 100% {
+    opacity: 0.3;
+    r: 2;
+  }
+  50% {
+    opacity: 1;
+    r: 4;
+  }
+}
+
+@keyframes pulse-ring {
+  0% {
+    opacity: 0.6;
+    transform: scale(0.8);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.2);
+  }
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
