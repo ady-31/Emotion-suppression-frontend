@@ -22,7 +22,7 @@ const steps = [
       </svg>
     ),
     title: 'Extract Behavioral Signals',
-    description: 'AI processes facial landmarks, movements, and temporal patterns'
+    description: 'System processes facial landmarks, movements, and temporal patterns'
   },
   {
     number: '03',
@@ -52,35 +52,52 @@ const steps = [
 
 const HowItWorks = () => {
   return (
-    <section id="how-it-works" className="py-28 lg:py-32 bg-bg-secondary">
-      <div className="max-w-[1200px] mx-auto px-6">
-        <h2 className="text-3xl md:text-4xl font-semibold text-center mb-12 gradient-text">
-          How It Works
-        </h2>
+    <section id="how-it-works" className="py-28 lg:py-32 bg-[#0d1118] relative overflow-hidden">
+      {/* Grid Overlay */}
+      <div className="absolute inset-0 opacity-[0.02]">
+        <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="howItWorksGrid" width="40" height="40" patternUnits="userSpaceOnUse">
+              <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#4a9ead" strokeWidth="0.5" />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#howItWorksGrid)" />
+        </svg>
+      </div>
+
+      <div className="max-w-[1200px] mx-auto px-6 relative z-10">
+        <div className="text-center mb-16">
+          <span className="inline-block px-4 py-2 rounded-full border border-[#4a9ead]/20 bg-[#4a9ead]/5 text-[#4a9ead] text-xs font-mono uppercase tracking-wider mb-6">
+            Process
+          </span>
+          <h2 className="text-3xl md:text-4xl font-light text-white">
+            How It Works
+          </h2>
+        </div>
         
         {/* Desktop horizontal flow */}
         <div className="hidden lg:flex items-start justify-between gap-4">
           {steps.map((step, index) => (
             <div key={index} className="contents">
               <div className="animate-on-scroll flex-1 text-center px-4">
-                <div className="text-5xl font-bold gradient-text opacity-30 mb-4">
+                <div className="text-5xl font-light text-[#4a9ead]/20 mb-4 font-mono">
                   {step.number}
                 </div>
-                <div className="w-[72px] h-[72px] mx-auto mb-5 flex items-center justify-center bg-bg-card border border-white/[0.08] rounded-full text-accent-cyan transition-all duration-400 hover:border-accent-cyan hover:shadow-[0_0_30px_rgba(0,212,212,0.2)] hover:scale-110">
+                <div className="w-[72px] h-[72px] mx-auto mb-5 flex items-center justify-center bg-[#0a0d12] border border-[#4a9ead]/20 rounded-full text-[#4a9ead] transition-all duration-400 hover:border-[#4a9ead]/50 hover:shadow-[0_0_30px_rgba(74,158,173,0.15)]">
                   {step.icon}
                 </div>
-                <h3 className="text-lg font-semibold mb-3 text-text-primary">
+                <h3 className="text-lg font-medium mb-3 text-white">
                   {step.title}
                 </h3>
-                <p className="text-text-secondary text-sm leading-relaxed">
+                <p className="text-[#7a9aaa] text-sm leading-relaxed">
                   {step.description}
                 </p>
               </div>
               
               {/* Connector */}
               {index < steps.length - 1 && (
-                <div className="flex-shrink-0 w-[60px] h-0.5 bg-gradient-to-r from-accent-cyan to-accent-violet opacity-30 mt-[100px] relative">
-                  <div className="absolute -right-1 -top-[3px] w-2 h-2 bg-accent-cyan rounded-full" />
+                <div className="flex-shrink-0 w-[60px] h-px bg-gradient-to-r from-[#4a9ead]/30 to-[#4a9ead]/10 mt-[100px] relative">
+                  <div className="absolute -right-1 -top-[3px] w-2 h-2 bg-[#4a9ead]/50 rounded-full" />
                 </div>
               )}
             </div>
@@ -92,24 +109,24 @@ const HowItWorks = () => {
           {steps.map((step, index) => (
             <div key={index} className="contents">
               <div className="animate-on-scroll text-center px-4 max-w-md">
-                <div className="text-5xl font-bold gradient-text opacity-30 mb-4">
+                <div className="text-5xl font-light text-[#4a9ead]/20 mb-4 font-mono">
                   {step.number}
                 </div>
-                <div className="w-[72px] h-[72px] mx-auto mb-5 flex items-center justify-center bg-bg-card border border-white/[0.08] rounded-full text-accent-cyan transition-all duration-400">
+                <div className="w-[72px] h-[72px] mx-auto mb-5 flex items-center justify-center bg-[#0a0d12] border border-[#4a9ead]/20 rounded-full text-[#4a9ead] transition-all duration-400">
                   {step.icon}
                 </div>
-                <h3 className="text-lg font-semibold mb-3 text-text-primary">
+                <h3 className="text-lg font-medium mb-3 text-white">
                   {step.title}
                 </h3>
-                <p className="text-text-secondary text-sm leading-relaxed">
+                <p className="text-[#7a9aaa] text-sm leading-relaxed">
                   {step.description}
                 </p>
               </div>
               
               {/* Vertical connector */}
               {index < steps.length - 1 && (
-                <div className="w-0.5 h-10 bg-gradient-to-b from-accent-cyan to-accent-violet opacity-30 relative">
-                  <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-accent-cyan rounded-full" />
+                <div className="w-px h-10 bg-gradient-to-b from-[#4a9ead]/30 to-transparent relative">
+                  <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-[#4a9ead]/50 rounded-full" />
                 </div>
               )}
             </div>

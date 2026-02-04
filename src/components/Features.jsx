@@ -34,25 +34,45 @@ const features = [
 
 const Features = () => {
   return (
-    <section id="what-it-does" className="py-28 lg:py-32 bg-bg-secondary">
-      <div className="max-w-[1200px] mx-auto px-6">
-        <h2 className="text-3xl md:text-4xl font-semibold text-center mb-12 gradient-text">
-          What It Does
-        </h2>
+    <section id="what-it-does" className="py-28 lg:py-32 bg-[#0a0d12] relative overflow-hidden">
+      {/* Grid Overlay */}
+      <div className="absolute inset-0 opacity-[0.02]">
+        <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="featuresGrid" width="40" height="40" patternUnits="userSpaceOnUse">
+              <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#4a9ead" strokeWidth="0.5" />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#featuresGrid)" />
+        </svg>
+      </div>
+
+      {/* Subtle glow */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#4a9ead]/5 rounded-full blur-[150px] pointer-events-none" />
+
+      <div className="max-w-[1200px] mx-auto px-6 relative z-10">
+        <div className="text-center mb-16">
+          <span className="inline-block px-4 py-2 rounded-full border border-[#4a9ead]/20 bg-[#4a9ead]/5 text-[#4a9ead] text-xs font-mono uppercase tracking-wider mb-6">
+            Capabilities
+          </span>
+          <h2 className="text-3xl md:text-4xl font-light text-white">
+            What It Does
+          </h2>
+        </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-[500px] md:max-w-none mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-[500px] md:max-w-none mx-auto">
           {features.map((feature, index) => (
             <div 
               key={index}
-              className="animate-on-scroll bg-bg-card border border-white/[0.08] rounded-2xl p-8 lg:p-10 text-center transition-all duration-400 hover:-translate-y-2 hover:border-accent-cyan/30 hover:shadow-glow"
+              className="animate-on-scroll bg-[#0d1118]/80 backdrop-blur-sm border border-[#4a9ead]/10 rounded-xl p-8 lg:p-10 text-center transition-all duration-400 hover:border-[#4a9ead]/30 hover:bg-[#0d1118]"
             >
-              <div className="w-16 h-16 mx-auto mb-6 flex items-center justify-center bg-gradient-subtle rounded-2xl text-accent-cyan">
+              <div className="w-16 h-16 mx-auto mb-6 flex items-center justify-center bg-[#4a9ead]/10 border border-[#4a9ead]/20 rounded-xl text-[#4a9ead]">
                 {feature.icon}
               </div>
-              <h3 className="text-xl font-semibold mb-4 text-text-primary">
+              <h3 className="text-lg font-medium mb-4 text-white">
                 {feature.title}
               </h3>
-              <p className="text-text-secondary text-[0.95rem] leading-relaxed">
+              <p className="text-[#7a9aaa] text-sm leading-relaxed">
                 {feature.description}
               </p>
             </div>

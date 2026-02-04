@@ -40,25 +40,39 @@ const useCases = [
 
 const UseCases = () => {
   return (
-    <section id="use-cases" className="py-28 lg:py-32 bg-bg-primary">
-      <div className="max-w-[1200px] mx-auto px-6">
-        <h2 className="text-3xl md:text-4xl font-semibold text-center mb-12 gradient-text">
-          Use Cases
-        </h2>
+    <section id="use-cases" className="py-28 lg:py-32 bg-[#0a0d12] relative overflow-hidden">
+      {/* Subtle glow */}
+      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-[#4a9ead]/5 rounded-full blur-[150px] pointer-events-none" />
+
+      {/* Corner accents */}
+      <div className="absolute top-16 left-16 w-20 h-20 border-l border-t border-[#4a9ead]/20 hidden lg:block" />
+      <div className="absolute top-16 right-16 w-20 h-20 border-r border-t border-[#4a9ead]/20 hidden lg:block" />
+      <div className="absolute bottom-16 left-16 w-20 h-20 border-l border-b border-[#4a9ead]/20 hidden lg:block" />
+      <div className="absolute bottom-16 right-16 w-20 h-20 border-r border-b border-[#4a9ead]/20 hidden lg:block" />
+
+      <div className="max-w-[1200px] mx-auto px-6 relative z-10">
+        <div className="text-center mb-16">
+          <span className="inline-block px-4 py-2 rounded-full border border-[#4a9ead]/20 bg-[#4a9ead]/5 text-[#4a9ead] text-xs font-mono uppercase tracking-wider mb-6">
+            Applications
+          </span>
+          <h2 className="text-3xl md:text-4xl font-light text-white">
+            Use Cases
+          </h2>
+        </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-[500px] md:max-w-none mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-[500px] md:max-w-none mx-auto">
           {useCases.map((useCase, index) => (
             <div 
               key={index}
-              className="animate-on-scroll bg-gradient-subtle border border-white/[0.08] rounded-2xl p-8 lg:p-10 transition-all duration-400 hover:border-accent-violet hover:-translate-y-1"
+              className="animate-on-scroll bg-[#0d1118]/60 backdrop-blur-sm border border-[#4a9ead]/10 rounded-xl p-8 lg:p-10 transition-all duration-400 hover:border-[#4a9ead]/30 group"
             >
-              <div className="w-14 h-14 mb-6 flex items-center justify-center text-accent-violet">
+              <div className="w-14 h-14 mb-6 flex items-center justify-center text-[#4a9ead] opacity-70 group-hover:opacity-100 transition-opacity">
                 {useCase.icon}
               </div>
-              <h3 className="text-xl font-semibold mb-3 text-text-primary">
+              <h3 className="text-xl font-medium mb-3 text-white">
                 {useCase.title}
               </h3>
-              <p className="text-text-secondary text-[0.95rem] leading-relaxed">
+              <p className="text-[#7a9aaa] text-sm leading-relaxed">
                 {useCase.description}
               </p>
             </div>
