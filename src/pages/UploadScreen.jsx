@@ -80,17 +80,17 @@ const UploadScreen = () => {
   }
 
   return (
-    <div className="min-h-screen bg-bg-primary flex items-center justify-center p-6 relative overflow-hidden">
+    <div className="min-h-screen bg-[#0a0d12] flex items-center justify-center p-6 relative overflow-hidden">
       {/* Background gradients */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-accent-cyan/[0.05] rounded-full blur-[120px]" />
-        <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-accent-violet/[0.05] rounded-full blur-[120px]" />
+        <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-[#FF91AF]/[0.05] rounded-full blur-[120px]" />
+        <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-[#FF91AF]/[0.03] rounded-full blur-[120px]" />
       </div>
 
       {/* Back to Home */}
       <Link 
         to="/" 
-        className="absolute top-6 left-6 flex items-center gap-2 text-text-secondary hover:text-accent-cyan transition-colors"
+        className="absolute top-6 left-6 flex items-center gap-2 text-[#b8a0a8] hover:text-[#FF91AF] transition-colors"
       >
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -100,16 +100,16 @@ const UploadScreen = () => {
 
       {/* Main Card */}
       <div className="w-full max-w-2xl relative z-10">
-        <div className="bg-bg-card/80 backdrop-blur-xl border border-white/[0.08] rounded-3xl p-8 md:p-12 shadow-2xl">
+        <div className="bg-[#0d1118]/80 backdrop-blur-xl border border-[#FF91AF]/10 rounded-3xl p-8 md:p-12 shadow-2xl">
           {/* Header */}
           <div className="text-center mb-10">
-            <div className="inline-flex items-center gap-2 text-accent-cyan mb-4">
+            <div className="inline-flex items-center gap-2 text-[#FF91AF] mb-4">
               <span className="text-3xl">◉</span>
             </div>
-            <h1 className="text-3xl md:text-4xl font-bold mb-3 gradient-text">
+            <h1 className="text-3xl md:text-4xl font-light mb-3 text-white">
               Emotion Suppression Detector
             </h1>
-            <p className="text-text-secondary text-lg">
+            <p className="text-[#b8a0a8] text-lg">
               Upload a video or image for behavioral analysis
             </p>
           </div>
@@ -122,10 +122,10 @@ const UploadScreen = () => {
             onDrop={handleDrop}
             className={`relative border-2 border-dashed rounded-2xl p-8 md:p-12 text-center cursor-pointer transition-all duration-300 ${
               isDragging
-                ? 'border-accent-cyan bg-accent-cyan/10'
+                ? 'border-[#FF91AF] bg-[#FF91AF]/10'
                 : file
-                ? 'border-accent-cyan/50 bg-accent-cyan/5'
-                : 'border-white/[0.15] hover:border-accent-cyan/50 hover:bg-white/[0.02]'
+                ? 'border-[#FF91AF]/50 bg-[#FF91AF]/5'
+                : 'border-[#FF91AF]/20 hover:border-[#FF91AF]/50 hover:bg-[#FF91AF]/5'
             }`}
           >
             <input
@@ -139,28 +139,28 @@ const UploadScreen = () => {
             {!file ? (
               <>
                 {/* Upload Icon */}
-                <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-subtle flex items-center justify-center">
-                  <svg className="w-10 h-10 text-accent-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-[#FF91AF]/10 border border-[#FF91AF]/20 flex items-center justify-center">
+                  <svg className="w-10 h-10 text-[#FF91AF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                   </svg>
                 </div>
-                <p className="text-text-primary text-lg font-medium mb-2">
+                <p className="text-white text-lg font-medium mb-2">
                   Drag and drop your file here
                 </p>
-                <p className="text-text-secondary mb-4">
+                <p className="text-[#b8a0a8] mb-4">
                   or click to browse
                 </p>
                 <div className="flex flex-wrap justify-center gap-2 mb-4">
                   {['MP4', 'AVI', 'JPG', 'PNG'].map((format) => (
                     <span
                       key={format}
-                      className="px-3 py-1 text-xs font-medium bg-white/[0.05] border border-white/[0.1] rounded-full text-text-secondary"
+                      className="px-3 py-1 text-xs font-medium bg-[#FF91AF]/10 border border-[#FF91AF]/20 rounded-full text-[#FF91AF]"
                     >
                       {format}
                     </span>
                   ))}
                 </div>
-                <p className="text-text-muted text-sm">
+                <p className="text-[#b8a0a8]/60 text-sm">
                   Recommended duration: under 2 minutes
                 </p>
               </>
@@ -193,12 +193,12 @@ const UploadScreen = () => {
                   />
                 )}
 
-                <div className="mt-4 flex items-center justify-center gap-2 text-text-secondary">
-                  <svg className="w-5 h-5 text-accent-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="mt-4 flex items-center justify-center gap-2 text-[#b8a0a8]">
+                  <svg className="w-5 h-5 text-[#FF91AF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
                   <span className="font-medium">{file.name}</span>
-                  <span className="text-text-muted">
+                  <span className="text-[#b8a0a8]/60">
                     ({(file.size / (1024 * 1024)).toFixed(2)} MB)
                   </span>
                 </div>
@@ -210,17 +210,17 @@ const UploadScreen = () => {
           <button
             onClick={handleProceed}
             disabled={!file}
-            className={`w-full mt-8 py-4 px-8 rounded-xl font-semibold text-lg transition-all duration-300 ${
+            className={`w-full mt-8 py-4 px-8 rounded-xl font-medium text-lg transition-all duration-300 ${
               file
-                ? 'bg-gradient-to-r from-accent-cyan to-accent-violet text-bg-primary shadow-glow-cyan hover:shadow-glow-cyan-lg hover:-translate-y-0.5'
-                : 'bg-white/[0.05] text-text-muted cursor-not-allowed'
+                ? 'bg-[#FF91AF] text-[#0a0d12] shadow-lg shadow-[#FF91AF]/20 hover:bg-[#FFa8c0] hover:-translate-y-0.5'
+                : 'bg-[#FF91AF]/10 text-[#b8a0a8]/50 cursor-not-allowed'
             }`}
           >
             {file ? 'Proceed to Analysis' : 'Upload a file to continue'}
           </button>
 
           {/* Info */}
-          <p className="text-center text-text-muted text-sm mt-6">
+          <p className="text-center text-[#b8a0a8]/60 text-sm mt-6">
             Your data is processed securely and not stored permanently
           </p>
         </div>
