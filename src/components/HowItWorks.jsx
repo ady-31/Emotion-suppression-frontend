@@ -65,6 +65,9 @@ const HowItWorks = () => {
         </svg>
       </div>
 
+      {/* Subtle glow */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#FF91AF]/5 rounded-full blur-[150px] pointer-events-none" />
+
       <div className="max-w-[1200px] mx-auto px-6 relative z-10">
         <div className="text-center mb-16">
           <span className="inline-block px-4 py-2 rounded-full border border-[#FF91AF]/20 bg-[#FF91AF]/5 text-[#FF91AF] text-xs font-mono uppercase tracking-wider mb-6">
@@ -83,7 +86,7 @@ const HowItWorks = () => {
                 <div className="text-5xl font-light text-[#FF91AF]/20 mb-4 font-mono">
                   {step.number}
                 </div>
-                <div className="w-[72px] h-[72px] mx-auto mb-5 flex items-center justify-center bg-[#0a0d12] border border-[#FF91AF]/20 rounded-full text-[#FF91AF] transition-all duration-400 hover:border-[#FF91AF]/50 hover:shadow-[0_0_30px_rgba(74,158,173,0.15)]">
+                <div className="w-[72px] h-[72px] mx-auto mb-5 flex items-center justify-center bg-[#0a0d12] border border-[#FF91AF]/20 rounded-full text-[#FF91AF] transition-all duration-400 hover:border-[#FF91AF]/50 hover:shadow-[0_0_30px_rgba(255,145,175,0.15)]">
                   {step.icon}
                 </div>
                 <h3 className="text-lg font-medium mb-3 text-white">

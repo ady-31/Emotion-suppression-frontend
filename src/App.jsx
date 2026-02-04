@@ -5,6 +5,7 @@ import Features from './components/Features'
 import WhyItMatters from './components/WhyItMatters'
 import HowItWorks from './components/HowItWorks'
 import UseCases from './components/UseCases'
+import BiometricCTA from './components/BiometricCTA'
 import UploadScreen from './pages/UploadScreen'
 import ProcessingScreen from './pages/ProcessingScreen'
 import ResultsScreen from './pages/ResultsScreen'
@@ -38,6 +39,7 @@ function LandingPage() {
       <WhyItMatters />
       <HowItWorks />
       <UseCases />
+      <BiometricCTA />
     </>
   )
 }
