@@ -1,35 +1,23 @@
 import { useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import FaceVisualization from './FaceVisualization'
 
 const Hero = () => {
   const navigate = useNavigate()
-  const visualRef = useRef(null)
-  const svgRef = useRef(null)
+  const containerRef = useRef(null)
 
   useEffect(() => {
-    const handleScroll = () => {
-      if (visualRef.current && window.pageYOffset < window.innerHeight) {
-        const rate = window.pageYOffset * 0.3
-        visualRef.current.style.transform = `translateY(${rate}px)`
-      }
-    }
-
+    // Parallax effect on mouse move
     const handleMouseMove = (e) => {
-      if (svgRef.current && window.innerWidth > 768) {
-        const mouseX = e.clientX / window.innerWidth - 0.5
-        const mouseY = e.clientY / window.innerHeight - 0.5
-        svgRef.current.style.transform = `translate(${mouseX * 20}px, ${mouseY * 20}px)`
+      if (containerRef.current && window.innerWidth > 768) {
+        const mouseX = (e.clientX / window.innerWidth - 0.5) * 20
+        const mouseY = (e.clientY / window.innerHeight - 0.5) * 20
+        containerRef.current.style.setProperty('--mouse-x', `${mouseX}px`)
+        containerRef.current.style.setProperty('--mouse-y', `${mouseY}px`)
       }
     }
 
-    window.addEventListener('scroll', handleScroll)
     document.addEventListener('mousemove', handleMouseMove)
-
-    return () => {
-      window.removeEventListener('scroll', handleScroll)
-      document.removeEventListener('mousemove', handleMouseMove)
-    }
+    return () => document.removeEventListener('mousemove', handleMouseMove)
   }, [])
 
   const handleSmoothScroll = (e, targetId) => {
@@ -46,45 +34,128 @@ const Hero = () => {
   }
 
   return (
-    <section className="min-h-screen flex items-center pt-20 bg-bg-primary relative overflow-hidden">
-      {/* Background gradients */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/2 left-[20%] -translate-y-1/2 w-[600px] h-[600px] bg-accent-cyan/[0.08] rounded-full blur-[120px]" />
-        <div className="absolute top-1/2 right-[20%] -translate-y-1/2 w-[600px] h-[600px] bg-accent-violet/[0.08] rounded-full blur-[120px]" />
+    <section 
+      ref={containerRef}
+      className="min-h-screen flex items-center justify-center relative overflow-hidden"
+      style={{ '--mouse-x': '0px', '--mouse-y': '0px' }}
+    >
+      {/* Background Image with Overlay */}
+      <div className="absolute inset-0">
+        {/* Abstract background gradient simulating calm imagery */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#0a1628] via-[#0d1f35] to-[#0a0f1a]" />
+        
+        {/* Soft ambient light spots */}
+        <div 
+          className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-[#0d4a6e]/20 rounded-full blur-[150px] transition-transform duration-700 ease-out"
+          style={{ transform: 'translate(var(--mouse-x), var(--mouse-y))' }}
+        />
+        <div 
+          className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-[#1a3a5c]/15 rounded-full blur-[120px] transition-transform duration-700 ease-out"
+          style={{ transform: 'translate(calc(var(--mouse-x) * -0.5), calc(var(--mouse-y) * -0.5))' }}
+        />
+        
+        {/* Dark overlay for readability */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0f]/90 via-transparent to-[#0a0a0f]/60" />
       </div>
 
-      <div className="max-w-[1200px] mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center relative z-10">
-        {/* Content */}
-        <div className="animate-fade-in-up text-center lg:text-left order-2 lg:order-1">
-          <h1 className="text-4xl md:text-5xl lg:text-[3.5rem] font-bold leading-[1.1] mb-6 hero-title-gradient">
-            Emotion Suppression Detection System
-          </h1>
-          <p className="text-lg md:text-xl text-text-secondary mb-10 leading-relaxed">
-            Advanced analysis of facial behavior and speech timing to detect suppressed emotional expression
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-            <button 
-              onClick={() => navigate('/upload')}
-              className="btn-ripple inline-flex items-center justify-center px-8 py-3.5 text-base font-medium bg-gradient-to-br from-accent-cyan to-accent-violet text-bg-primary rounded-lg shadow-glow-cyan hover:shadow-glow-cyan-lg hover:-translate-y-0.5 transition-all duration-400"
+      {/* Decorative Grid Pattern - Left Side */}
+      <div className="absolute left-0 top-0 bottom-0 w-32 md:w-48 opacity-[0.15] pointer-events-none">
+        <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="dotPatternLeft" x="0" y="0" width="24" height="24" patternUnits="userSpaceOnUse">
+              <circle cx="2" cy="2" r="1" fill="#4a9ead" className="animate-pulse-slow" />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#dotPatternLeft)" />
+        </svg>
+      </div>
+
+      {/* Decorative Grid Pattern - Right Side */}
+      <div className="absolute right-0 top-0 bottom-0 w-32 md:w-48 opacity-[0.15] pointer-events-none">
+        <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="dotPatternRight" x="0" y="0" width="24" height="24" patternUnits="userSpaceOnUse">
+              <circle cx="2" cy="2" r="1" fill="#4a9ead" className="animate-pulse-slow" />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#dotPatternRight)" />
+        </svg>
+      </div>
+
+      {/* Vertical Signal Lines */}
+      <div className="absolute left-8 md:left-16 top-1/4 bottom-1/4 w-px bg-gradient-to-b from-transparent via-[#4a9ead]/30 to-transparent" />
+      <div className="absolute right-8 md:right-16 top-1/4 bottom-1/4 w-px bg-gradient-to-b from-transparent via-[#4a9ead]/30 to-transparent" />
+
+      {/* Center Content */}
+      <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
+        {/* Logo Icon */}
+        <div className="hero-fade-in mb-8">
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-[#1a3a5c]/50 to-[#0d2840]/50 border border-[#4a9ead]/20 backdrop-blur-sm shadow-lg shadow-[#4a9ead]/5">
+            {/* Abstract observation/analysis icon */}
+            <svg 
+              className="w-10 h-10 text-[#4a9ead]" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              xmlns="http://www.w3.org/2000/svg"
             >
-              Start Analysis
-            </button>
-            <a 
-              href="#how-it-works"
-              onClick={(e) => handleSmoothScroll(e, '#how-it-works')}
-              className="inline-flex items-center justify-center px-8 py-3.5 text-base font-medium bg-transparent text-text-primary border border-white/[0.08] rounded-lg hover:border-accent-cyan hover:text-accent-cyan hover:bg-accent-cyan/5 transition-all duration-400"
-            >
-              How It Works
-            </a>
+              <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.5" className="animate-pulse-slow" />
+              <circle cx="12" cy="12" r="7" stroke="currentColor" strokeWidth="1" strokeDasharray="4 2" opacity="0.6" />
+              <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="0.5" strokeDasharray="2 4" opacity="0.3" />
+              <path d="M12 2v3M12 19v3M2 12h3M19 12h3" stroke="currentColor" strokeWidth="1" opacity="0.5" />
+            </svg>
           </div>
         </div>
 
-        {/* Visual */}
-        <div 
-          ref={visualRef}
-          className="flex justify-center items-center relative animate-fade-in order-1 lg:order-2"
-        >
-          <FaceVisualization svgRef={svgRef} />
+        {/* Project Name */}
+        <h1 className="hero-fade-in-delay-1 text-4xl md:text-5xl lg:text-6xl font-light tracking-tight mb-6 text-[#e8eef4]">
+          <span className="font-serif italic text-[#4a9ead]">Emotion</span>
+          <span className="mx-3 text-[#6b8a9a]">Suppression</span>
+          <span className="font-medium">Detector</span>
+        </h1>
+
+        {/* Tagline */}
+        <p className="hero-fade-in-delay-2 text-lg md:text-xl text-[#7a9aaa] font-light tracking-wide mb-12 max-w-2xl mx-auto leading-relaxed">
+          Detecting subtle emotional regulation through behavioral signals
+        </p>
+
+        {/* Decorative divider */}
+        <div className="hero-fade-in-delay-2 flex items-center justify-center gap-3 mb-12">
+          <div className="w-12 h-px bg-gradient-to-r from-transparent to-[#4a9ead]/40" />
+          <div className="w-1.5 h-1.5 rounded-full bg-[#4a9ead]/60" />
+          <div className="w-12 h-px bg-gradient-to-l from-transparent to-[#4a9ead]/40" />
+        </div>
+
+        {/* Call to Action Buttons */}
+        <div className="hero-fade-in-delay-3 flex flex-col sm:flex-row gap-4 justify-center items-center">
+          {/* Primary Button */}
+          <button 
+            onClick={() => navigate('/upload')}
+            className="group relative px-8 py-3.5 text-sm font-medium tracking-wider uppercase bg-[#4a9ead]/10 text-[#4a9ead] border border-[#4a9ead]/30 rounded-full backdrop-blur-sm hover:bg-[#4a9ead]/20 hover:border-[#4a9ead]/50 hover:shadow-lg hover:shadow-[#4a9ead]/10 transition-all duration-500 ease-out"
+          >
+            <span className="relative z-10 flex items-center gap-2">
+              Start Analysis
+              <svg className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              </svg>
+            </span>
+          </button>
+
+          {/* Secondary Button */}
+          <a 
+            href="#how-it-works"
+            onClick={(e) => handleSmoothScroll(e, '#how-it-works')}
+            className="px-8 py-3.5 text-sm font-light tracking-wider text-[#7a9aaa] hover:text-[#a0c0d0] transition-colors duration-300"
+          >
+            Learn More
+          </a>
+        </div>
+
+        {/* Subtle scroll indicator */}
+        <div className="hero-fade-in-delay-4 absolute bottom-8 left-1/2 -translate-x-1/2">
+          <div className="flex flex-col items-center gap-2 text-[#4a9ead]/40">
+            <span className="text-xs tracking-widest uppercase">Scroll</span>
+            <div className="w-px h-8 bg-gradient-to-b from-[#4a9ead]/40 to-transparent animate-pulse-slow" />
+          </div>
         </div>
       </div>
     </section>
