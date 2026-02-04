@@ -58,7 +58,7 @@ const HowItWorks = () => {
         <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <pattern id="howItWorksGrid" width="40" height="40" patternUnits="userSpaceOnUse">
-              <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#4a9ead" strokeWidth="0.5" />
+              <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#FF91AF" strokeWidth="0.5" />
             </pattern>
           </defs>
           <rect width="100%" height="100%" fill="url(#howItWorksGrid)" />
@@ -67,7 +67,7 @@ const HowItWorks = () => {
 
       <div className="max-w-[1200px] mx-auto px-6 relative z-10">
         <div className="text-center mb-16">
-          <span className="inline-block px-4 py-2 rounded-full border border-[#4a9ead]/20 bg-[#4a9ead]/5 text-[#4a9ead] text-xs font-mono uppercase tracking-wider mb-6">
+          <span className="inline-block px-4 py-2 rounded-full border border-[#FF91AF]/20 bg-[#FF91AF]/5 text-[#FF91AF] text-xs font-mono uppercase tracking-wider mb-6">
             Process
           </span>
           <h2 className="text-3xl md:text-4xl font-light text-white">
@@ -80,24 +80,24 @@ const HowItWorks = () => {
           {steps.map((step, index) => (
             <div key={index} className="contents">
               <div className="animate-on-scroll flex-1 text-center px-4">
-                <div className="text-5xl font-light text-[#4a9ead]/20 mb-4 font-mono">
+                <div className="text-5xl font-light text-[#FF91AF]/20 mb-4 font-mono">
                   {step.number}
                 </div>
-                <div className="w-[72px] h-[72px] mx-auto mb-5 flex items-center justify-center bg-[#0a0d12] border border-[#4a9ead]/20 rounded-full text-[#4a9ead] transition-all duration-400 hover:border-[#4a9ead]/50 hover:shadow-[0_0_30px_rgba(74,158,173,0.15)]">
+                <div className="w-[72px] h-[72px] mx-auto mb-5 flex items-center justify-center bg-[#0a0d12] border border-[#FF91AF]/20 rounded-full text-[#FF91AF] transition-all duration-400 hover:border-[#FF91AF]/50 hover:shadow-[0_0_30px_rgba(74,158,173,0.15)]">
                   {step.icon}
                 </div>
                 <h3 className="text-lg font-medium mb-3 text-white">
                   {step.title}
                 </h3>
-                <p className="text-[#7a9aaa] text-sm leading-relaxed">
+                <p className="text-[#b8a0a8] text-sm leading-relaxed">
                   {step.description}
                 </p>
               </div>
               
               {/* Connector */}
               {index < steps.length - 1 && (
-                <div className="flex-shrink-0 w-[60px] h-px bg-gradient-to-r from-[#4a9ead]/30 to-[#4a9ead]/10 mt-[100px] relative">
-                  <div className="absolute -right-1 -top-[3px] w-2 h-2 bg-[#4a9ead]/50 rounded-full" />
+                <div className="flex-shrink-0 w-[60px] h-px bg-gradient-to-r from-[#FF91AF]/30 to-[#FF91AF]/10 mt-[100px] relative">
+                  <div className="absolute -right-1 -top-[3px] w-2 h-2 bg-[#FF91AF]/50 rounded-full" />
                 </div>
               )}
             </div>
@@ -109,24 +109,24 @@ const HowItWorks = () => {
           {steps.map((step, index) => (
             <div key={index} className="contents">
               <div className="animate-on-scroll text-center px-4 max-w-md">
-                <div className="text-5xl font-light text-[#4a9ead]/20 mb-4 font-mono">
+                <div className="text-5xl font-light text-[#FF91AF]/20 mb-4 font-mono">
                   {step.number}
                 </div>
-                <div className="w-[72px] h-[72px] mx-auto mb-5 flex items-center justify-center bg-[#0a0d12] border border-[#4a9ead]/20 rounded-full text-[#4a9ead] transition-all duration-400">
+                <div className="w-[72px] h-[72px] mx-auto mb-5 flex items-center justify-center bg-[#0a0d12] border border-[#FF91AF]/20 rounded-full text-[#FF91AF] transition-all duration-400">
                   {step.icon}
                 </div>
                 <h3 className="text-lg font-medium mb-3 text-white">
                   {step.title}
                 </h3>
-                <p className="text-[#7a9aaa] text-sm leading-relaxed">
+                <p className="text-[#b8a0a8] text-sm leading-relaxed">
                   {step.description}
                 </p>
               </div>
               
               {/* Vertical connector */}
               {index < steps.length - 1 && (
-                <div className="w-px h-10 bg-gradient-to-b from-[#4a9ead]/30 to-transparent relative">
-                  <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-[#4a9ead]/50 rounded-full" />
+                <div className="w-px h-10 bg-gradient-to-b from-[#FF91AF]/30 to-transparent relative">
+                  <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-[#FF91AF]/50 rounded-full" />
                 </div>
               )}
             </div>

@@ -40,7 +40,7 @@ const Features = () => {
         <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <pattern id="featuresGrid" width="40" height="40" patternUnits="userSpaceOnUse">
-              <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#4a9ead" strokeWidth="0.5" />
+              <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#FF91AF" strokeWidth="0.5" />
             </pattern>
           </defs>
           <rect width="100%" height="100%" fill="url(#featuresGrid)" />
@@ -48,11 +48,11 @@ const Features = () => {
       </div>
 
       {/* Subtle glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#4a9ead]/5 rounded-full blur-[150px] pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#FF91AF]/5 rounded-full blur-[150px] pointer-events-none" />
 
       <div className="max-w-[1200px] mx-auto px-6 relative z-10">
         <div className="text-center mb-16">
-          <span className="inline-block px-4 py-2 rounded-full border border-[#4a9ead]/20 bg-[#4a9ead]/5 text-[#4a9ead] text-xs font-mono uppercase tracking-wider mb-6">
+          <span className="inline-block px-4 py-2 rounded-full border border-[#FF91AF]/20 bg-[#FF91AF]/5 text-[#FF91AF] text-xs font-mono uppercase tracking-wider mb-6">
             Capabilities
           </span>
           <h2 className="text-3xl md:text-4xl font-light text-white">
@@ -64,15 +64,15 @@ const Features = () => {
           {features.map((feature, index) => (
             <div 
               key={index}
-              className="animate-on-scroll bg-[#0d1118]/80 backdrop-blur-sm border border-[#4a9ead]/10 rounded-xl p-8 lg:p-10 text-center transition-all duration-400 hover:border-[#4a9ead]/30 hover:bg-[#0d1118]"
+              className="animate-on-scroll bg-[#0d1118]/80 backdrop-blur-sm border border-[#FF91AF]/10 rounded-xl p-8 lg:p-10 text-center transition-all duration-400 hover:border-[#FF91AF]/30 hover:bg-[#0d1118]"
             >
-              <div className="w-16 h-16 mx-auto mb-6 flex items-center justify-center bg-[#4a9ead]/10 border border-[#4a9ead]/20 rounded-xl text-[#4a9ead]">
+              <div className="w-16 h-16 mx-auto mb-6 flex items-center justify-center bg-[#FF91AF]/10 border border-[#FF91AF]/20 rounded-xl text-[#FF91AF]">
                 {feature.icon}
               </div>
               <h3 className="text-lg font-medium mb-4 text-white">
                 {feature.title}
               </h3>
-              <p className="text-[#7a9aaa] text-sm leading-relaxed">
+              <p className="text-[#b8a0a8] text-sm leading-relaxed">
                 {feature.description}
               </p>
             </div>
