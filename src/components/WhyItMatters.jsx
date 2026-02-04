@@ -15,7 +15,7 @@ const WhyItMatters = () => {
               Emotion suppression is a complex psychological phenomenon where individuals consciously or unconsciously inhibit their natural emotional expressions. Unlike overt emotions that can be detected by standard facial recognition systems, suppressed emotions leave only subtle traces—momentary muscle tensions, delayed reactions, and interrupted expression patterns.
             </p>
             <p className="animate-on-scroll text-text-secondary text-lg leading-relaxed">
-              Traditional emotion recognition AI is designed to identify clear, fully-expressed emotions. It fails to capture the nuanced behavioral signals that indicate when someone is actively controlling or hiding their true emotional state. Our system bridges this gap by focusing specifically on the markers of emotional regulation, providing insights that conventional tools simply cannot offer.
+              Traditional emotion recognition tools are designed to identify clear, fully-expressed emotions. They fail to capture the nuanced behavioral signals that indicate when someone is actively controlling or hiding their true emotional state. Our tool bridges this gap by focusing specifically on the markers of emotional regulation, providing insights that conventional tools simply cannot offer.
             </p>
           </div>
         </div>

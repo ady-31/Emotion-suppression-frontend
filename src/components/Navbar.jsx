@@ -36,7 +36,7 @@ const Navbar = () => {
         {/* Logo */}
         <div className="flex items-center gap-2.5 text-xl font-semibold">
           <span className="text-accent-cyan text-2xl">◉</span>
-          <span>EmotionAI</span>
+          <span>Suppresense</span>
         </div>
 
         {/* Navigation Links */}

@@ -6,11 +6,11 @@ const Footer = () => {
           {/* Brand */}
           <div className="inline-flex items-center gap-2.5 text-xl font-semibold mb-4">
             <span className="text-accent-cyan text-2xl">◉</span>
-            <span>EmotionAI</span>
+            <span>Suppresense</span>
           </div>
           
           <p className="text-text-muted mb-6">
-            Advanced AI for understanding human emotional expression
+            Advanced tool for understanding human emotional expression
           </p>
           
           {/* Links */}

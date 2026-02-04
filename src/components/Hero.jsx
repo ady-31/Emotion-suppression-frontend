@@ -60,7 +60,7 @@ const Hero = () => {
             Emotion Suppression Detection System
           </h1>
           <p className="text-lg md:text-xl text-text-secondary mb-10 leading-relaxed">
-            AI-based analysis of facial behavior and speech timing to detect suppressed emotional expression
+            Advanced analysis of facial behavior and speech timing to detect suppressed emotional expression
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
             <button 

@@ -153,7 +153,7 @@ const ProcessingScreen = () => {
           <div className="lg:col-span-6">
             <div className="bg-bg-card/60 backdrop-blur-xl border border-white/[0.08] rounded-2xl p-6 md:p-8">
               <h3 className="text-sm font-medium text-text-muted uppercase tracking-wider mb-6">
-                AI Processing Pipeline
+                Processing Pipeline
               </h3>
 
               {/* Steps */}
