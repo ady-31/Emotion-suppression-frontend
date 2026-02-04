@@ -5,7 +5,7 @@ const Footer = () => {
         <div className="text-center">
           {/* Brand */}
           <div className="inline-flex items-center gap-2.5 text-xl font-semibold mb-4">
-            <span className="text-accent-cyan text-2xl">◉</span>
+            <span className="text-accent-cyan text-2xl">🧠</span>
             <span>Suppresense</span>
           </div>
           
