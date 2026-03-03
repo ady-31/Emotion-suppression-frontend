@@ -7,6 +7,7 @@ const ACCEPTED_EXTENSIONS  = ['.mp4', '.avi', '.mov', '.mkv', '.webm']
 
 const UploadScreen = () => {
   const [videoFile,       setVideoFile]       = useState(null)
+  const [videoPreviewUrl, setVideoPreviewUrl] = useState(null)
   const [isDragging,      setIsDragging]      = useState(false)
   const [userForm,        setUserForm]        = useState({ name: '', email: '', phone: '', age: '', gender: '' })
   const [formErrors,      setFormErrors]      = useState({})
@@ -49,6 +50,10 @@ const UploadScreen = () => {
       return
     }
     setVideoFile(file)
+    setVideoPreviewUrl(prev => {
+      if (prev) URL.revokeObjectURL(prev)
+      return URL.createObjectURL(file)
+    })
   }, [])
 
   // ── Drag-and-drop ─────────────────────────────────────────────────────────
@@ -125,22 +130,22 @@ const UploadScreen = () => {
               Emotion Suppression Detector
             </h1>
             <p className="text-[#b8a0a8] text-base">
-              Upload a video to detect emotion suppression using AI analysis
+              Upload a video to detect emotion suppression
             </p>
           </div>
 
           {/* Drop Zone */}
           <div
-            onClick={() => videoInputRef.current?.click()}
+            onClick={() => { if (!videoFile) videoInputRef.current?.click() }}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
-            className={`relative border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all duration-300 min-h-[260px] flex flex-col justify-center ${
-              isDragging
-                ? 'border-[#FF91AF] bg-[#FF91AF]/10'
-                : videoFile
-                ? 'border-[#FF91AF]/50 bg-[#FF91AF]/5'
-                : 'border-[#FF91AF]/20 hover:border-[#FF91AF]/50 hover:bg-[#FF91AF]/5'
+            className={`relative border-2 border-dashed rounded-2xl overflow-hidden transition-all duration-300 ${
+              videoFile
+                ? 'border-[#FF91AF]/50 cursor-default'
+                : isDragging
+                ? 'border-[#FF91AF] bg-[#FF91AF]/10 p-8 text-center min-h-[260px] flex flex-col justify-center cursor-pointer'
+                : 'border-[#FF91AF]/20 hover:border-[#FF91AF]/50 hover:bg-[#FF91AF]/5 p-8 text-center min-h-[260px] flex flex-col justify-center cursor-pointer'
             }`}
           >
             <input
@@ -170,25 +175,41 @@ const UploadScreen = () => {
                 </div>
               </>
             ) : (
-              <div className="relative">
-                {/* Remove button */}
-                <button
-                  onClick={(e) => { e.stopPropagation(); setVideoFile(null); if (videoInputRef.current) videoInputRef.current.value = '' }}
-                  className="absolute -top-3 -right-3 w-7 h-7 bg-red-500/80 hover:bg-red-500 rounded-full flex items-center justify-center text-white transition-colors z-10"
-                >
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-
-                <div className="w-14 h-14 mx-auto mb-4 rounded-xl bg-[#FF91AF]/20 border border-[#FF91AF]/30 flex items-center justify-center">
-                  <svg className="w-7 h-7 text-[#FF91AF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-                      d="M15 10l4.553-2.277A1 1 0 0121 8.68v6.641a1 1 0 01-1.447.894L15 14M3 8a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z" />
-                  </svg>
+              <div>
+                {/* Video player */}
+                <video
+                  src={videoPreviewUrl}
+                  controls
+                  onClick={(e) => e.stopPropagation()}
+                  className="w-full bg-black"
+                  style={{ maxHeight: '360px', display: 'block' }}
+                />
+                {/* File info bar */}
+                <div className="flex items-center justify-between px-4 py-2 bg-[#0a0d12]">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <svg className="w-4 h-4 text-[#FF91AF] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                        d="M15 10l4.553-2.277A1 1 0 0121 8.68v6.641a1 1 0 01-1.447.894L15 14M3 8a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z" />
+                    </svg>
+                    <span className="text-[#FF91AF] text-sm font-medium truncate">{videoFile.name}</span>
+                    <span className="text-[#b8a0a8]/60 text-xs flex-shrink-0">{readableSize(videoFile.size)}</span>
+                  </div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      if (videoPreviewUrl) URL.revokeObjectURL(videoPreviewUrl)
+                      setVideoPreviewUrl(null)
+                      setVideoFile(null)
+                      if (videoInputRef.current) videoInputRef.current.value = ''
+                    }}
+                    className="flex-shrink-0 ml-3 flex items-center gap-1 px-3 py-1 rounded-lg bg-red-500/20 hover:bg-red-500/40 text-red-400 text-xs font-medium transition-colors"
+                  >
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    Remove
+                  </button>
                 </div>
-                <p className="text-[#FF91AF] font-semibold text-lg mb-1">{videoFile.name}</p>
-                <p className="text-[#b8a0a8] text-sm">{readableSize(videoFile.size)}</p>
               </div>
             )}
           </div>

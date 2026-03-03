@@ -85,7 +85,12 @@ const ProcessingScreen = () => {
       setProgress(100)
 
       sessionStorage.setItem('analysisResults', JSON.stringify(result))
-      delete window.__uploadedVideo
+
+      // Create a persistent object URL so the results screen can play the video
+      if (window.__uploadedVideo) {
+        window.__videoObjectURL = URL.createObjectURL(window.__uploadedVideo)
+        delete window.__uploadedVideo
+      }
 
       setTimeout(() => navigate('/results'), 700)
     } catch (err) {

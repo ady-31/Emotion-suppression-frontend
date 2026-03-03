@@ -32,6 +32,7 @@ const ResultsScreen = () => {
   const navigate = useNavigate()
   const [results,    setResults]    = useState(null)
   const [uploadData, setUploadData] = useState(null)
+  const [videoUrl,   setVideoUrl]   = useState(null)
 
   useEffect(() => {
     const storedResults    = sessionStorage.getItem('analysisResults')
@@ -40,6 +41,9 @@ const ResultsScreen = () => {
     if (!storedResults) { navigate('/upload'); return }
     setResults(JSON.parse(storedResults))
     if (storedUploadData) setUploadData(JSON.parse(storedUploadData))
+
+    // Grab the object URL created by ProcessingScreen
+    if (window.__videoObjectURL) setVideoUrl(window.__videoObjectURL)
   }, [navigate])
 
   if (!results) {
@@ -118,6 +122,23 @@ const ResultsScreen = () => {
             Analyse New Video
           </Link>
         </div>
+
+        {/* ── Video Player ── */}
+        {videoUrl && (
+          <div className="bg-[#0d1118]/80 backdrop-blur-xl border border-[#FF91AF]/10 rounded-2xl p-6 mb-6">
+            <h3 className="text-sm font-medium text-[#b8a0a8]/60 uppercase tracking-wider mb-4">
+              Uploaded Video
+            </h3>
+            <div className="flex justify-center">
+              <video
+                src={videoUrl}
+                controls
+                className="w-full max-w-3xl rounded-xl border border-[#FF91AF]/10 bg-black"
+                style={{ maxHeight: '420px' }}
+              />
+            </div>
+          </div>
+        )}
 
         {/* ── Metric Cards ── */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
