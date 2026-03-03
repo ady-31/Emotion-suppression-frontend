@@ -1,82 +1,96 @@
 import { useState, useRef, useCallback } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
+import { registerUser } from '../services/api'
+
+const ACCEPTED_VIDEO_TYPES = ['video/mp4', 'video/x-msvideo', 'video/quicktime', 'video/x-matroska', 'video/webm']
+const ACCEPTED_EXTENSIONS  = ['.mp4', '.avi', '.mov', '.mkv', '.webm']
 
 const UploadScreen = () => {
-  const [file, setFile] = useState(null)
-  const [preview, setPreview] = useState(null)
-  const [isDragging, setIsDragging] = useState(false)
-  const [fileType, setFileType] = useState(null)
-  const fileInputRef = useRef(null)
-  const navigate = useNavigate()
+  const [videoFile,       setVideoFile]       = useState(null)
+  const [isDragging,      setIsDragging]      = useState(false)
+  const [userForm,        setUserForm]        = useState({ name: '', email: '', phone: '', age: '', gender: '' })
+  const [formErrors,      setFormErrors]      = useState({})
+  const [formSubmitted,   setFormSubmitted]   = useState(false)
+  const [isSubmitting,    setIsSubmitting]    = useState(false)
+  const videoInputRef = useRef(null)
+  const navigate      = useNavigate()
 
-  const acceptedFormats = {
-    video: ['video/mp4', 'video/avi', 'video/x-msvideo', 'video/quicktime'],
-    image: ['image/jpeg', 'image/png', 'image/jpg']
+  // ── Validation ────────────────────────────────────────────────────────────
+  const validateForm = () => {
+    const errors = {}
+    if (!userForm.name.trim())  errors.name  = 'Name is required'
+    if (!userForm.email.trim()) errors.email = 'Email is required'
+    else if (!/\S+@\S+\.\S+/.test(userForm.email)) errors.email = 'Invalid email'
+    if (!userForm.phone.trim()) errors.phone = 'Phone is required'
+    else if (!/^\d{10}$/.test(userForm.phone.replace(/[\s\-()]/g, '')))
+      errors.phone = 'Enter a valid 10-digit number'
+    if (userForm.age && (isNaN(userForm.age) || userForm.age < 1 || userForm.age > 120))
+      errors.age = 'Enter a valid age'
+    setFormErrors(errors)
+    return Object.keys(errors).length === 0
   }
 
-  const handleFile = useCallback((selectedFile) => {
-    if (!selectedFile) return
+  const handleFormChange = (e) => {
+    const { name, value } = e.target
+    setUserForm(prev => ({ ...prev, [name]: value }))
+    if (formErrors[name]) setFormErrors(prev => ({ ...prev, [name]: '' }))
+  }
 
-    const isVideo = acceptedFormats.video.includes(selectedFile.type)
-    const isImage = acceptedFormats.image.includes(selectedFile.type)
+  // ── File helpers ──────────────────────────────────────────────────────────
+  const isVideoFile = (f) =>
+    ACCEPTED_VIDEO_TYPES.includes(f.type) ||
+    ACCEPTED_EXTENSIONS.some(ext => f.name.toLowerCase().endsWith(ext))
 
-    if (!isVideo && !isImage) {
-      alert('Please upload a valid file format (MP4, AVI, JPG, PNG)')
+  const handleFiles = useCallback((selectedFiles) => {
+    if (!selectedFiles || selectedFiles.length === 0) return
+    const file = selectedFiles[0]
+    if (!isVideoFile(file)) {
+      alert(`Unsupported file type.\nAccepted formats: ${ACCEPTED_EXTENSIONS.join(', ')}`)
       return
     }
-
-    setFile(selectedFile)
-    setFileType(isVideo ? 'video' : 'image')
-
-    // Create preview
-    const reader = new FileReader()
-    reader.onloadend = () => {
-      setPreview(reader.result)
-    }
-    reader.readAsDataURL(selectedFile)
+    setVideoFile(file)
   }, [])
 
-  const handleDragOver = (e) => {
-    e.preventDefault()
-    setIsDragging(true)
-  }
-
-  const handleDragLeave = (e) => {
+  // ── Drag-and-drop ─────────────────────────────────────────────────────────
+  const handleDragOver  = (e) => { e.preventDefault(); setIsDragging(true)  }
+  const handleDragLeave = (e) => { e.preventDefault(); setIsDragging(false) }
+  const handleDrop      = (e) => {
     e.preventDefault()
     setIsDragging(false)
+    handleFiles(e.dataTransfer.files)
   }
+  const handleFileInput = (e) => handleFiles(e.target.files)
 
-  const handleDrop = (e) => {
-    e.preventDefault()
-    setIsDragging(false)
-    const droppedFile = e.dataTransfer.files[0]
-    handleFile(droppedFile)
-  }
+  // ── Proceed ───────────────────────────────────────────────────────────────
+  const handleProceed = async () => {
+    if (!videoFile) return
+    if (!validateForm()) return
 
-  const handleFileInput = (e) => {
-    const selectedFile = e.target.files[0]
-    handleFile(selectedFile)
-  }
+    setIsSubmitting(true)
 
-  const handleProceed = () => {
-    if (file) {
-      // Store file info in sessionStorage for demo purposes
-      sessionStorage.setItem('uploadedFile', JSON.stringify({
-        name: file.name,
-        type: fileType,
-        preview: preview
-      }))
-      navigate('/processing')
+    try {
+      await registerUser(userForm)
+      setFormSubmitted(true)
+    } catch (err) {
+      console.error('Failed to save user info:', err)
+      // Continue even if MongoDB save fails
     }
+
+    sessionStorage.setItem('uploadData', JSON.stringify({
+      type:      'video',
+      fileName:  videoFile.name,
+      fileSize:  videoFile.size,
+      userName:  userForm.name,
+      userEmail: userForm.email,
+    }))
+
+    window.__uploadedVideo = videoFile
+    navigate('/processing')
   }
 
-  const removeFile = () => {
-    setFile(null)
-    setPreview(null)
-    setFileType(null)
-    if (fileInputRef.current) {
-      fileInputRef.current.value = ''
-    }
+  const readableSize = (bytes) => {
+    if (bytes < 1048576) return `${(bytes / 1024).toFixed(1)} KB`
+    return `${(bytes / 1048576).toFixed(1)} MB`
   }
 
   return (
@@ -88,9 +102,9 @@ const UploadScreen = () => {
       </div>
 
       {/* Back to Home */}
-      <Link 
-        to="/" 
-        className="absolute top-6 left-6 flex items-center gap-2 text-[#b8a0a8] hover:text-[#FF91AF] transition-colors"
+      <Link
+        to="/"
+        className="absolute top-6 left-6 flex items-center gap-2 text-[#b8a0a8] hover:text-[#FF91AF] transition-colors z-20"
       >
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -98,129 +112,189 @@ const UploadScreen = () => {
         <span>Back to Home</span>
       </Link>
 
-      {/* Main Card */}
-      <div className="w-full max-w-2xl relative z-10">
-        <div className="bg-[#0d1118]/80 backdrop-blur-xl border border-[#FF91AF]/10 rounded-3xl p-8 md:p-12 shadow-2xl">
-          {/* Header */}
-          <div className="text-center mb-10">
-            <div className="inline-flex items-center gap-2 text-[#FF91AF] mb-4">
+      {/* Main Layout */}
+      <div className="w-full max-w-7xl relative z-10 flex flex-col lg:flex-row gap-6 mt-12">
+
+        {/* Left Panel – Video Upload */}
+        <div className="flex-[3] bg-[#0d1118]/80 backdrop-blur-xl border border-[#FF91AF]/10 rounded-3xl p-8 md:p-10 shadow-2xl">
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center gap-2 text-[#FF91AF] mb-3">
               <span className="text-3xl">◉</span>
             </div>
-            <h1 className="text-3xl md:text-4xl font-light mb-3 text-white">
+            <h1 className="text-2xl md:text-3xl font-light mb-2 text-white">
               Emotion Suppression Detector
             </h1>
-            <p className="text-[#b8a0a8] text-lg">
-              Upload a video or image for behavioral analysis
+            <p className="text-[#b8a0a8] text-base">
+              Upload a video to detect emotion suppression using AI analysis
             </p>
           </div>
 
-          {/* Upload Area */}
+          {/* Drop Zone */}
           <div
-            onClick={() => fileInputRef.current?.click()}
+            onClick={() => videoInputRef.current?.click()}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
-            className={`relative border-2 border-dashed rounded-2xl p-8 md:p-12 text-center cursor-pointer transition-all duration-300 ${
+            className={`relative border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all duration-300 min-h-[260px] flex flex-col justify-center ${
               isDragging
                 ? 'border-[#FF91AF] bg-[#FF91AF]/10'
-                : file
+                : videoFile
                 ? 'border-[#FF91AF]/50 bg-[#FF91AF]/5'
                 : 'border-[#FF91AF]/20 hover:border-[#FF91AF]/50 hover:bg-[#FF91AF]/5'
             }`}
           >
             <input
-              ref={fileInputRef}
+              ref={videoInputRef}
               type="file"
-              accept=".mp4,.avi,.mov,.jpg,.jpeg,.png"
+              accept={ACCEPTED_EXTENSIONS.join(',')}
               onChange={handleFileInput}
               className="hidden"
             />
 
-            {!file ? (
+            {!videoFile ? (
               <>
-                {/* Upload Icon */}
-                <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-[#FF91AF]/10 border border-[#FF91AF]/20 flex items-center justify-center">
-                  <svg className="w-10 h-10 text-[#FF91AF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                <div className="w-16 h-16 mx-auto mb-5 rounded-2xl bg-[#FF91AF]/10 border border-[#FF91AF]/20 flex items-center justify-center">
+                  <svg className="w-8 h-8 text-[#FF91AF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                      d="M15 10l4.553-2.277A1 1 0 0121 8.68v6.641a1 1 0 01-1.447.894L15 14M3 8a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z" />
                   </svg>
                 </div>
-                <p className="text-white text-lg font-medium mb-2">
-                  Drag and drop your file here
-                </p>
-                <p className="text-[#b8a0a8] mb-4">
-                  or click to browse
-                </p>
-                <div className="flex flex-wrap justify-center gap-2 mb-4">
-                  {['MP4', 'AVI', 'JPG', 'PNG'].map((format) => (
-                    <span
-                      key={format}
-                      className="px-3 py-1 text-xs font-medium bg-[#FF91AF]/10 border border-[#FF91AF]/20 rounded-full text-[#FF91AF]"
-                    >
-                      {format}
+                <p className="text-white text-base font-medium mb-2">Drop your video here</p>
+                <p className="text-[#b8a0a8] text-sm mb-4">or click to browse</p>
+                <div className="flex flex-wrap justify-center gap-2">
+                  {ACCEPTED_EXTENSIONS.map(ext => (
+                    <span key={ext} className="px-2 py-1 text-xs rounded-lg bg-[#FF91AF]/10 text-[#FF91AF] border border-[#FF91AF]/20">
+                      {ext}
                     </span>
                   ))}
                 </div>
-                <p className="text-[#b8a0a8]/60 text-sm">
-                  Recommended duration: under 2 minutes
-                </p>
               </>
             ) : (
-              /* Preview */
               <div className="relative">
+                {/* Remove button */}
                 <button
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    removeFile()
-                  }}
-                  className="absolute -top-2 -right-2 w-8 h-8 bg-red-500/80 hover:bg-red-500 rounded-full flex items-center justify-center text-white transition-colors z-10"
+                  onClick={(e) => { e.stopPropagation(); setVideoFile(null); if (videoInputRef.current) videoInputRef.current.value = '' }}
+                  className="absolute -top-3 -right-3 w-7 h-7 bg-red-500/80 hover:bg-red-500 rounded-full flex items-center justify-center text-white transition-colors z-10"
                 >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
 
-                {fileType === 'video' ? (
-                  <video
-                    src={preview}
-                    className="max-h-64 mx-auto rounded-lg shadow-lg"
-                    controls
-                  />
-                ) : (
-                  <img
-                    src={preview}
-                    alt="Preview"
-                    className="max-h-64 mx-auto rounded-lg shadow-lg object-contain"
-                  />
-                )}
-
-                <div className="mt-4 flex items-center justify-center gap-2 text-[#b8a0a8]">
-                  <svg className="w-5 h-5 text-[#FF91AF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                <div className="w-14 h-14 mx-auto mb-4 rounded-xl bg-[#FF91AF]/20 border border-[#FF91AF]/30 flex items-center justify-center">
+                  <svg className="w-7 h-7 text-[#FF91AF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                      d="M15 10l4.553-2.277A1 1 0 0121 8.68v6.641a1 1 0 01-1.447.894L15 14M3 8a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z" />
                   </svg>
-                  <span className="font-medium">{file.name}</span>
-                  <span className="text-[#b8a0a8]/60">
-                    ({(file.size / (1024 * 1024)).toFixed(2)} MB)
-                  </span>
                 </div>
+                <p className="text-[#FF91AF] font-semibold text-lg mb-1">{videoFile.name}</p>
+                <p className="text-[#b8a0a8] text-sm">{readableSize(videoFile.size)}</p>
               </div>
             )}
           </div>
 
-          {/* Proceed Button */}
+          {/* Info note */}
+          <div className="mt-4 p-4 bg-[#FF91AF]/5 border border-[#FF91AF]/15 rounded-xl text-sm text-[#b8a0a8] flex items-start gap-3">
+            <svg className="w-5 h-5 text-[#FF91AF] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>
+              The system extracts facial action units with OpenFace, runs an LSTM model for suppression
+              scoring and uses DeepFace to detect visible emotions. Results include a suppression level,
+              hidden emotion estimate, and speech-latency events.
+            </span>
+          </div>
+        </div>
+
+        {/* Right Panel – Subject Details */}
+        <div className="flex-[2] bg-[#0d1118]/80 backdrop-blur-xl border border-[#FF91AF]/10 rounded-3xl p-8 md:p-10 shadow-2xl flex flex-col">
+          <div className="mb-6">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-10 h-10 rounded-xl bg-[#FF91AF]/10 border border-[#FF91AF]/20 flex items-center justify-center">
+                <svg className="w-5 h-5 text-[#FF91AF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              </div>
+              <h2 className="text-xl font-light text-white">Subject Details</h2>
+            </div>
+            <p className="text-[#b8a0a8] text-sm">Enter the subject information for this analysis session</p>
+          </div>
+
+          <div className="space-y-4 flex-1">
+            {/* Name */}
+            <div>
+              <label className="block text-sm text-[#b8a0a8] mb-1.5">Full Name <span className="text-[#FF91AF]">*</span></label>
+              <input type="text" name="name" value={userForm.name} onChange={handleFormChange}
+                placeholder="Enter full name"
+                className={`w-full px-4 py-3 rounded-xl bg-[#0a0d12] border ${formErrors.name ? 'border-red-500/60' : 'border-[#FF91AF]/20'} text-white placeholder-[#b8a0a8]/40 focus:outline-none focus:border-[#FF91AF]/60 transition-colors text-sm`} />
+              {formErrors.name && <p className="text-red-400 text-xs mt-1">{formErrors.name}</p>}
+            </div>
+
+            {/* Email */}
+            <div>
+              <label className="block text-sm text-[#b8a0a8] mb-1.5">Email Address <span className="text-[#FF91AF]">*</span></label>
+              <input type="email" name="email" value={userForm.email} onChange={handleFormChange}
+                placeholder="email@example.com"
+                className={`w-full px-4 py-3 rounded-xl bg-[#0a0d12] border ${formErrors.email ? 'border-red-500/60' : 'border-[#FF91AF]/20'} text-white placeholder-[#b8a0a8]/40 focus:outline-none focus:border-[#FF91AF]/60 transition-colors text-sm`} />
+              {formErrors.email && <p className="text-red-400 text-xs mt-1">{formErrors.email}</p>}
+            </div>
+
+            {/* Phone */}
+            <div>
+              <label className="block text-sm text-[#b8a0a8] mb-1.5">Phone Number <span className="text-[#FF91AF]">*</span></label>
+              <input type="tel" name="phone" value={userForm.phone} onChange={handleFormChange}
+                placeholder="Enter 10-digit phone number"
+                className={`w-full px-4 py-3 rounded-xl bg-[#0a0d12] border ${formErrors.phone ? 'border-red-500/60' : 'border-[#FF91AF]/20'} text-white placeholder-[#b8a0a8]/40 focus:outline-none focus:border-[#FF91AF]/60 transition-colors text-sm`} />
+              {formErrors.phone && <p className="text-red-400 text-xs mt-1">{formErrors.phone}</p>}
+            </div>
+
+            {/* Age & Gender */}
+            <div className="flex gap-4">
+              <div className="flex-1">
+                <label className="block text-sm text-[#b8a0a8] mb-1.5">Age</label>
+                <input type="number" name="age" min="1" max="120" value={userForm.age} onChange={handleFormChange}
+                  placeholder="Age"
+                  className={`w-full px-4 py-3 rounded-xl bg-[#0a0d12] border ${formErrors.age ? 'border-red-500/60' : 'border-[#FF91AF]/20'} text-white placeholder-[#b8a0a8]/40 focus:outline-none focus:border-[#FF91AF]/60 transition-colors text-sm`} />
+                {formErrors.age && <p className="text-red-400 text-xs mt-1">{formErrors.age}</p>}
+              </div>
+              <div className="flex-1">
+                <label className="block text-sm text-[#b8a0a8] mb-1.5">Gender</label>
+                <select name="gender" value={userForm.gender} onChange={handleFormChange}
+                  className="w-full px-4 py-3 rounded-xl bg-[#0a0d12] border border-[#FF91AF]/20 text-white focus:outline-none focus:border-[#FF91AF]/60 transition-colors text-sm appearance-none cursor-pointer">
+                  <option value=""             className="bg-[#0a0d12]">Select</option>
+                  <option value="male"         className="bg-[#0a0d12]">Male</option>
+                  <option value="female"       className="bg-[#0a0d12]">Female</option>
+                  <option value="other"        className="bg-[#0a0d12]">Other</option>
+                  <option value="prefer_not"   className="bg-[#0a0d12]">Prefer not to say</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* Proceed */}
           <button
             onClick={handleProceed}
-            disabled={!file}
-            className={`w-full mt-8 py-4 px-8 rounded-xl font-medium text-lg transition-all duration-300 ${
-              file
+            disabled={!videoFile || isSubmitting}
+            className={`w-full mt-6 py-4 px-8 rounded-xl font-medium text-lg transition-all duration-300 ${
+              videoFile && !isSubmitting
                 ? 'bg-[#FF91AF] text-[#0a0d12] shadow-lg shadow-[#FF91AF]/20 hover:bg-[#FFa8c0] hover:-translate-y-0.5'
                 : 'bg-[#FF91AF]/10 text-[#b8a0a8]/50 cursor-not-allowed'
             }`}
           >
-            {file ? 'Proceed to Analysis' : 'Upload a file to continue'}
+            {isSubmitting ? (
+              <span className="flex items-center justify-center gap-3">
+                <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                </svg>
+                Preparing analysis…
+              </span>
+            ) : videoFile ? 'Analyze Video' : 'Upload a video to continue'}
           </button>
 
-          {/* Info */}
-          <p className="text-center text-[#b8a0a8]/60 text-sm mt-6">
+          <p className="text-center text-[#b8a0a8]/60 text-xs mt-4">
             Your data is processed securely and not stored permanently
           </p>
         </div>

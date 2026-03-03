@@ -44,12 +44,6 @@ const UseCases = () => {
       {/* Subtle glow */}
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-[#FF91AF]/5 rounded-full blur-[150px] pointer-events-none" />
 
-      {/* Corner accents */}
-      <div className="absolute top-16 left-16 w-20 h-20 border-l border-t border-[#FF91AF]/20 hidden lg:block" />
-      <div className="absolute top-16 right-16 w-20 h-20 border-r border-t border-[#FF91AF]/20 hidden lg:block" />
-      <div className="absolute bottom-16 left-16 w-20 h-20 border-l border-b border-[#FF91AF]/20 hidden lg:block" />
-      <div className="absolute bottom-16 right-16 w-20 h-20 border-r border-b border-[#FF91AF]/20 hidden lg:block" />
-
       <div className="max-w-[1200px] mx-auto px-6 relative z-10">
         <div className="text-center mb-16">
           <span className="inline-block px-4 py-2 rounded-full border border-[#FF91AF]/20 bg-[#FF91AF]/5 text-[#FF91AF] text-xs font-mono uppercase tracking-wider mb-6">

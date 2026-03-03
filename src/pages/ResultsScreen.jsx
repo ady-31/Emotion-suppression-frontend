@@ -1,410 +1,347 @@
 import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import {
-  LineChart,
-  Line,
-  BarChart,
-  Bar,
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer
+  AreaChart, Area,
+  XAxis, YAxis,
+  CartesianGrid, Tooltip,
+  ResponsiveContainer,
+  ReferenceLine,
 } from 'recharts'
 
-// Generate mock data
-const generateTimelineData = () => {
-  return Array.from({ length: 30 }, (_, i) => ({
-    time: `${i * 2}s`,
-    suppression: Math.floor(Math.random() * 40 + 30 + Math.sin(i * 0.5) * 20)
-  }))
+// ── Helpers ────────────────────────────────────────────────────────────────────
+const levelMeta = {
+  'Low Suppression':      { color: '#22c55e', bg: 'bg-green-500/10',  border: 'border-green-500/30',  short: 'Low'      },
+  'Moderate Suppression': { color: '#f59e0b', bg: 'bg-amber-500/10',  border: 'border-amber-500/30',  short: 'Moderate' },
+  'High Suppression':     { color: '#ef4444', bg: 'bg-red-500/10',    border: 'border-red-500/30',    short: 'High'     },
 }
 
-const generateActionUnitData = () => {
-  const units = ['AU1', 'AU2', 'AU4', 'AU6', 'AU7', 'AU12', 'AU14', 'AU15']
-  return units.map(unit => ({
-    name: unit,
-    stability: Math.floor(Math.random() * 40 + 60)
-  }))
+const emotionEmoji = {
+  happy:     '😊', happiness: '😊',
+  sad:       '😢', sadness:   '😢',
+  angry:     '😠', anger:     '😠',
+  fear:      '😨',
+  surprise:  '😲', surprised: '😲',
+  disgust:   '🤢',
+  neutral:   '😐',
 }
 
-const generateExpressionDelayData = () => {
-  return Array.from({ length: 15 }, (_, i) => ({
-    segment: `Seg ${i + 1}`,
-    delay: (Math.random() * 0.4 + 0.1).toFixed(2)
-  }))
-}
+const capitalise = (s) => s ? s.charAt(0).toUpperCase() + s.slice(1) : '—'
 
+// ── Component ──────────────────────────────────────────────────────────────────
 const ResultsScreen = () => {
-  const [fileInfo, setFileInfo] = useState(null)
-  const [timelineData] = useState(generateTimelineData)
-  const [actionUnitData] = useState(generateActionUnitData)
-  const [expressionDelayData] = useState(generateExpressionDelayData)
-  
-  // Mock results
-  const results = {
-    suppressionScore: 72,
-    suppressionLevel: 'Moderate',
-    confidenceScore: 87,
-    insights: 'Moderate emotion suppression detected during emotionally loaded segments. Notable patterns include delayed facial responses and inconsistent muscle activation in the upper face region. Speech pause patterns suggest cognitive load during response formulation.'
-  }
+  const navigate = useNavigate()
+  const [results,    setResults]    = useState(null)
+  const [uploadData, setUploadData] = useState(null)
 
   useEffect(() => {
-    const storedFile = sessionStorage.getItem('uploadedFile')
-    if (storedFile) {
-      setFileInfo(JSON.parse(storedFile))
-    }
-  }, [])
+    const storedResults    = sessionStorage.getItem('analysisResults')
+    const storedUploadData = sessionStorage.getItem('uploadData')
 
-  const getSuppressionColor = (level) => {
-    switch (level) {
-      case 'Low': return 'text-green-400'
-      case 'Moderate': return 'text-amber-400'
-      case 'High': return 'text-red-400'
-      default: return 'text-text-secondary'
-    }
+    if (!storedResults) { navigate('/upload'); return }
+    setResults(JSON.parse(storedResults))
+    if (storedUploadData) setUploadData(JSON.parse(storedUploadData))
+  }, [navigate])
+
+  if (!results) {
+    return (
+      <div className="min-h-screen bg-[#0a0d12] flex items-center justify-center">
+        <p className="text-[#b8a0a8]">Loading results…</p>
+      </div>
+    )
   }
 
-  const getScoreColor = (score) => {
-    if (score < 40) return 'from-green-400 to-green-600'
-    if (score < 70) return 'from-amber-400 to-amber-600'
-    return 'from-red-400 to-red-600'
+  const {
+    suppression_score  = 0,
+    normalized_score   = 0,
+    level              = 'Low Suppression',
+    dominant_emotion   = null,
+    suppressed_emotion = null,
+    timeline           = [],
+    latency_events     = [],
+    files_processed    = 1,
+  } = results
+
+  const meta         = levelMeta[level] || levelMeta['Low Suppression']
+  const pct          = Math.round(normalized_score * 100)
+  const circumference = 2 * Math.PI * 48   // r = 48
+
+  const handleExportCSV = () => {
+    const rows = [
+      ['Metric', 'Value'],
+      ['Suppression Score (raw)', suppression_score],
+      ['Normalized Score (0-1)',  normalized_score],
+      ['Level',                  level],
+      ['Dominant Emotion',       dominant_emotion  || 'N/A'],
+      ['Suppressed Emotion',     suppressed_emotion || 'None'],
+      ['Files Processed',        files_processed],
+      [],
+      ['Timeline'],
+      ['Time (s)', 'Suppression Score'],
+      ...timeline.map(p => [p.time, p.score]),
+      [],
+      ['Speech Latency Events'],
+      ['Time (s)', 'Duration (s)'],
+      ...latency_events.map(e => [e.time, e.duration]),
+    ].map(r => r.join(',')).join('\n')
+
+    const blob = new Blob([rows], { type: 'text/csv' })
+    const url  = URL.createObjectURL(blob)
+    const a    = document.createElement('a')
+    a.href = url; a.download = 'suppression_results.csv'; a.click()
+    URL.revokeObjectURL(url)
   }
 
   return (
-    <div className="min-h-screen bg-bg-primary p-4 md:p-6 relative overflow-hidden">
-      {/* Background */}
+    <div className="min-h-screen bg-[#0a0d12] p-4 md:p-6 relative overflow-hidden">
+      {/* Background glow */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 right-1/4 w-[600px] h-[600px] bg-accent-violet/[0.03] rounded-full blur-[150px]" />
-        <div className="absolute bottom-0 left-1/4 w-[600px] h-[600px] bg-accent-cyan/[0.03] rounded-full blur-[150px]" />
+        <div className="absolute top-0 right-1/4 w-[600px] h-[600px] bg-[#FF91AF]/[0.04] rounded-full blur-[150px]" />
+        <div className="absolute bottom-0 left-1/4 w-[600px] h-[600px] bg-[#FF91AF]/[0.02] rounded-full blur-[150px]" />
       </div>
 
       <div className="max-w-7xl mx-auto relative z-10">
-        {/* Header */}
+
+        {/* ── Header ── */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold gradient-text">
-              Emotion Suppression Analysis Results
-            </h1>
-            <p className="text-text-secondary mt-1">Analysis completed successfully</p>
+            <h1 className="text-2xl md:text-3xl font-light text-white">Emotion Suppression Results</h1>
+            <p className="text-[#b8a0a8] mt-1">
+              {uploadData?.fileName ? `Video: ${uploadData.fileName}` : 'Analysis complete'}
+            </p>
           </div>
-          <Link
-            to="/upload"
-            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-subtle border border-white/[0.1] rounded-xl text-text-primary hover:border-accent-cyan transition-all duration-300"
-          >
+          <Link to="/upload"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-[#0d1118] border border-[#FF91AF]/20 rounded-xl text-white hover:border-[#FF91AF]/50 transition-all">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
             </svg>
-            Upload New File
+            Analyse New Video
           </Link>
         </div>
 
-        {/* Main Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-          {/* Left - Media Preview */}
-          <div className="lg:col-span-1">
-            <div className="bg-bg-card/60 backdrop-blur-xl border border-white/[0.08] rounded-2xl p-6 h-full">
-              <h3 className="text-sm font-medium text-text-muted uppercase tracking-wider mb-4">
-                Analyzed Media
-              </h3>
-              
-              <div className="relative aspect-video bg-bg-primary rounded-xl overflow-hidden mb-4">
-                {fileInfo?.preview ? (
-                  <>
-                    {fileInfo.type === 'video' ? (
-                      <video
-                        src={fileInfo.preview}
-                        className="w-full h-full object-cover"
-                        controls
-                      />
-                    ) : (
-                      <img
-                        src={fileInfo.preview}
-                        alt="Analyzed"
-                        className="w-full h-full object-cover"
-                      />
-                    )}
-                    {/* Landmark overlay */}
-                    <div className="absolute inset-0 pointer-events-none">
-                      <svg className="w-full h-full" viewBox="0 0 100 100">
-                        <circle cx="35" cy="35" r="2" fill="#00d4d4" opacity="0.8" />
-                        <circle cx="65" cy="35" r="2" fill="#00d4d4" opacity="0.8" />
-                        <circle cx="50" cy="50" r="1.5" fill="#8b5cf6" opacity="0.8" />
-                        <path d="M 35 65 Q 50 75 65 65" fill="none" stroke="#00d4d4" strokeWidth="0.5" opacity="0.6" />
-                        <rect x="25" y="20" width="50" height="60" rx="10" fill="none" stroke="#00d4d4" strokeWidth="0.3" opacity="0.4" />
-                      </svg>
-                    </div>
-                  </>
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-text-muted">
-                    <span>No media available</span>
-                  </div>
-                )}
-              </div>
+        {/* ── Metric Cards ── */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
 
-              {fileInfo?.name && (
-                <p className="text-text-secondary text-sm truncate">{fileInfo.name}</p>
-              )}
+          {/* Suppression Score gauge */}
+          <div className="bg-[#0d1118]/80 backdrop-blur-xl border border-[#FF91AF]/10 rounded-2xl p-6 flex flex-col items-center">
+            <h3 className="text-xs font-medium text-[#b8a0a8]/60 uppercase tracking-wider mb-4">
+              Suppression Score
+            </h3>
+            <div className="relative w-28 h-28">
+              <svg className="w-full h-full -rotate-90" viewBox="0 0 112 112">
+                <circle cx="56" cy="56" r="48" fill="none" stroke="currentColor" strokeWidth="8"
+                  className="text-white/[0.05]" />
+                <circle cx="56" cy="56" r="48" fill="none" stroke={meta.color} strokeWidth="8"
+                  strokeLinecap="round"
+                  strokeDasharray={`${(pct / 100) * circumference} ${circumference}`}
+                  className="transition-all duration-1000" />
+              </svg>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span className="text-2xl font-bold text-white leading-none">{pct}%</span>
+              </div>
             </div>
           </div>
 
-          {/* Right - Key Results */}
-          <div className="lg:col-span-2">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {/* Suppression Score */}
-              <div className="bg-bg-card/60 backdrop-blur-xl border border-white/[0.08] rounded-2xl p-6">
-                <h3 className="text-sm font-medium text-text-muted uppercase tracking-wider mb-4">
-                  Suppression Score
-                </h3>
-                <div className="flex items-center justify-center">
-                  <div className="relative w-32 h-32">
-                    <svg className="w-full h-full transform -rotate-90">
-                      <circle
-                        cx="64"
-                        cy="64"
-                        r="56"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="8"
-                        className="text-white/[0.05]"
-                      />
-                      <circle
-                        cx="64"
-                        cy="64"
-                        r="56"
-                        fill="none"
-                        stroke="url(#scoreGradient)"
-                        strokeWidth="8"
-                        strokeLinecap="round"
-                        strokeDasharray={`${results.suppressionScore * 3.52} 352`}
-                        className="transition-all duration-1000"
-                      />
-                      <defs>
-                        <linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                          <stop offset="0%" stopColor="#00d4d4" />
-                          <stop offset="100%" stopColor="#8b5cf6" />
-                        </linearGradient>
-                      </defs>
-                    </svg>
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="text-4xl font-bold">{results.suppressionScore}</span>
-                    </div>
-                  </div>
-                </div>
-                <p className="text-center text-text-muted text-sm mt-2">out of 100</p>
-              </div>
-
-              {/* Suppression Level */}
-              <div className="bg-bg-card/60 backdrop-blur-xl border border-white/[0.08] rounded-2xl p-6">
-                <h3 className="text-sm font-medium text-text-muted uppercase tracking-wider mb-4">
-                  Suppression Level
-                </h3>
-                <div className="flex items-center justify-center h-32">
-                  <div className="text-center">
-                    <div className={`text-4xl font-bold ${getSuppressionColor(results.suppressionLevel)}`}>
-                      {results.suppressionLevel}
-                    </div>
-                    <div className="flex items-center justify-center gap-2 mt-4">
-                      {['Low', 'Moderate', 'High'].map((level) => (
-                        <div
-                          key={level}
-                          className={`w-3 h-3 rounded-full ${
-                            level === results.suppressionLevel
-                              ? level === 'Low'
-                                ? 'bg-green-400'
-                                : level === 'Moderate'
-                                ? 'bg-amber-400'
-                                : 'bg-red-400'
-                              : 'bg-white/[0.1]'
-                          }`}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Confidence Score */}
-              <div className="bg-bg-card/60 backdrop-blur-xl border border-white/[0.08] rounded-2xl p-6">
-                <h3 className="text-sm font-medium text-text-muted uppercase tracking-wider mb-4">
-                  Confidence Score
-                </h3>
-                <div className="flex items-center justify-center h-32">
-                  <div className="text-center">
-                    <div className="text-5xl font-bold text-accent-cyan">
-                      {results.confidenceScore}%
-                    </div>
-                    <div className="w-full bg-white/[0.05] rounded-full h-2 mt-4">
-                      <div
-                        className="h-full bg-gradient-to-r from-accent-cyan to-accent-violet rounded-full transition-all duration-1000"
-                        style={{ width: `${results.confidenceScore}%` }}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
+          {/* Suppression Level */}
+          <div className="bg-[#0d1118]/80 backdrop-blur-xl border border-[#FF91AF]/10 rounded-2xl p-6 flex flex-col items-center justify-center">
+            <h3 className="text-xs font-medium text-[#b8a0a8]/60 uppercase tracking-wider mb-4">
+              Suppression Level
+            </h3>
+            <div className={`px-6 py-3 rounded-xl border text-lg font-semibold ${meta.bg} ${meta.border}`}
+              style={{ color: meta.color }}>
+              {meta.short}
             </div>
+            <p className="text-[#b8a0a8]/60 text-xs mt-3 text-center">{level}</p>
+          </div>
+
+          {/* Dominant Emotion */}
+          <div className="bg-[#0d1118]/80 backdrop-blur-xl border border-[#FF91AF]/10 rounded-2xl p-6 flex flex-col items-center justify-center">
+            <h3 className="text-xs font-medium text-[#b8a0a8]/60 uppercase tracking-wider mb-4">
+              Dominant Emotion
+            </h3>
+            <span className="text-5xl mb-2">
+              {emotionEmoji[dominant_emotion] || '🎭'}
+            </span>
+            <p className="text-white font-medium text-base">{capitalise(dominant_emotion)}</p>
+            <p className="text-[#b8a0a8]/60 text-xs mt-1">Visible expression</p>
+          </div>
+
+          {/* Suppressed Emotion */}
+          <div className="bg-[#0d1118]/80 backdrop-blur-xl border border-[#FF91AF]/10 rounded-2xl p-6 flex flex-col items-center justify-center">
+            <h3 className="text-xs font-medium text-[#b8a0a8]/60 uppercase tracking-wider mb-4">
+              Suppressed Emotion
+            </h3>
+            {suppressed_emotion ? (
+              <>
+                <span className="text-5xl mb-2">{emotionEmoji[suppressed_emotion] || '🎭'}</span>
+                <p className="text-[#FF91AF] font-medium text-base">{capitalise(suppressed_emotion)}</p>
+                <p className="text-[#b8a0a8]/60 text-xs mt-1">Hidden / suppressed</p>
+              </>
+            ) : (
+              <>
+                <span className="text-5xl mb-2 opacity-30">😶</span>
+                <p className="text-[#b8a0a8] font-medium text-base">None detected</p>
+                <p className="text-[#b8a0a8]/60 text-xs mt-1">No suppression signal</p>
+              </>
+            )}
           </div>
         </div>
 
-        {/* Charts Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          {/* Timeline Chart */}
-          <div className="bg-bg-card/60 backdrop-blur-xl border border-white/[0.08] rounded-2xl p-6">
-            <h3 className="text-sm font-medium text-text-muted uppercase tracking-wider mb-4">
-              Suppression Intensity Over Time
-            </h3>
+        {/* ── Timeline Chart ── */}
+        <div className="bg-[#0d1118]/80 backdrop-blur-xl border border-[#FF91AF]/10 rounded-2xl p-6 mb-6">
+          <h3 className="text-sm font-medium text-[#b8a0a8]/60 uppercase tracking-wider mb-1">
+            Suppression Over Time
+          </h3>
+          <p className="text-[#b8a0a8] text-xs mb-5">
+            LSTM window confidence scores — each point covers ≈0.67 s (20 frames @ 30 fps)
+          </p>
+
+          {timeline.length > 0 ? (
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={timelineData}>
+                <AreaChart data={timeline} margin={{ top: 4, right: 16, left: 0, bottom: 0 }}>
                   <defs>
-                    <linearGradient id="suppressionGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#00d4d4" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="#00d4d4" stopOpacity={0}/>
+                    <linearGradient id="tlGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%"  stopColor={meta.color} stopOpacity={0.35} />
+                      <stop offset="95%" stopColor={meta.color} stopOpacity={0}    />
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" />
-                  <XAxis dataKey="time" stroke="#6a6a7a" fontSize={12} />
-                  <YAxis stroke="#6a6a7a" fontSize={12} />
+                  <XAxis dataKey="time" stroke="#b8a0a8" fontSize={11}
+                    label={{ value: 'Time (s)', position: 'insideBottomRight', offset: -8, fill: '#b8a0a8', fontSize: 11 }} />
+                  <YAxis stroke="#b8a0a8" fontSize={11}
+                    label={{ value: 'Score', angle: -90, position: 'insideLeft', offset: 12, fill: '#b8a0a8', fontSize: 11 }} />
                   <Tooltip
-                    contentStyle={{
-                      backgroundColor: '#15151f',
-                      border: '1px solid rgba(255,255,255,0.1)',
-                      borderRadius: '8px',
-                      color: '#f0f0f5'
-                    }}
+                    contentStyle={{ backgroundColor: '#0d1118', border: '1px solid rgba(255,145,175,0.2)', borderRadius: '8px', color: '#f0f0f5' }}
+                    formatter={(v) => [v.toFixed(4), 'Suppression']}
+                    labelFormatter={(t) => `t = ${t} s`}
                   />
-                  <Area
-                    type="monotone"
-                    dataKey="suppression"
-                    stroke="#00d4d4"
-                    fillOpacity={1}
-                    fill="url(#suppressionGradient)"
-                  />
+                  {/* reference line at global mean */}
+                  <ReferenceLine y={suppression_score} stroke={meta.color} strokeDasharray="4 4" strokeOpacity={0.5} />
+                  <Area type="monotone" dataKey="score" stroke={meta.color} fill="url(#tlGrad)" dot={false} strokeWidth={2} />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
+          ) : (
+            <div className="h-48 flex items-center justify-center text-[#b8a0a8]/40">
+              No timeline data available
+            </div>
+          )}
+        </div>
+
+        {/* ── Lower grid: stats + latency ── */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+
+          {/* Stats summary */}
+          <div className="bg-[#0d1118]/80 backdrop-blur-xl border border-[#FF91AF]/10 rounded-2xl p-6">
+            <h3 className="text-sm font-medium text-[#b8a0a8]/60 uppercase tracking-wider mb-5">
+              Analysis Summary
+            </h3>
+            <table className="w-full text-sm">
+              <tbody className="divide-y divide-[#FF91AF]/5">
+                {[
+                  ['Raw suppression score',    suppression_score.toFixed(4)],
+                  ['Normalized score (0–1)',   normalized_score.toFixed(4)],
+                  ['Suppression level',        level],
+                  ['Dominant emotion',         capitalise(dominant_emotion)],
+                  ['Suppressed emotion',       capitalise(suppressed_emotion) || 'None'],
+                  ['LSTM windows analysed',    timeline.length],
+                  ['Speech latency events',    latency_events.length],
+                  ['Files processed',          files_processed],
+                ].map(([label, value]) => (
+                  <tr key={label}>
+                    <td className="py-3 text-[#b8a0a8]">{label}</td>
+                    <td className="py-3 text-white font-medium text-right">{value}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
 
-          {/* Action Unit Stability */}
-          <div className="bg-bg-card/60 backdrop-blur-xl border border-white/[0.08] rounded-2xl p-6">
-            <h3 className="text-sm font-medium text-text-muted uppercase tracking-wider mb-4">
-              Facial Action Unit Stability
+          {/* Speech latency events */}
+          <div className="bg-[#0d1118]/80 backdrop-blur-xl border border-[#FF91AF]/10 rounded-2xl p-6">
+            <h3 className="text-sm font-medium text-[#b8a0a8]/60 uppercase tracking-wider mb-1">
+              Speech Latency Events
             </h3>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={actionUnitData} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" />
-                  <XAxis type="number" stroke="#6a6a7a" fontSize={12} domain={[0, 100]} />
-                  <YAxis type="category" dataKey="name" stroke="#6a6a7a" fontSize={12} />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: '#15151f',
-                      border: '1px solid rgba(255,255,255,0.1)',
-                      borderRadius: '8px',
-                      color: '#f0f0f5'
-                    }}
-                  />
-                  <Bar dataKey="stability" fill="#8b5cf6" radius={[0, 4, 4, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+            <p className="text-[#b8a0a8] text-xs mb-5">
+              Pauses between speech segments longer than 0.2 s
+            </p>
+
+            {latency_events.length > 0 ? (
+              <div className="overflow-auto max-h-60">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-[#FF91AF]/10">
+                      <th className="text-left py-2 px-3 text-[#b8a0a8]/60 font-medium">#</th>
+                      <th className="text-left py-2 px-3 text-[#b8a0a8]/60 font-medium">Time (s)</th>
+                      <th className="text-left py-2 px-3 text-[#b8a0a8]/60 font-medium">Duration (s)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {latency_events.map((e, i) => (
+                      <tr key={i} className="border-b border-[#FF91AF]/5 hover:bg-[#FF91AF]/5 transition-colors">
+                        <td className="py-2 px-3 text-[#b8a0a8]">{i + 1}</td>
+                        <td className="py-2 px-3 text-white font-medium">{e.time.toFixed(3)}</td>
+                        <td className="py-2 px-3 text-[#FF91AF]">{e.duration.toFixed(3)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center h-40 text-[#b8a0a8]/40 gap-3">
+                <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1}
+                    d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4M9 11V7a3 3 0 016 0v4" />
+                </svg>
+                <p className="text-sm">No latency events detected</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* ── Insight card ── */}
+        <div className="bg-[#0d1118]/80 backdrop-blur-xl border border-[#FF91AF]/10 rounded-2xl p-6 mb-6">
+          <div className="flex items-start gap-4">
+            <div className="w-10 h-10 rounded-xl flex-shrink-0 flex items-center justify-center"
+              style={{ backgroundColor: `${meta.color}20`, border: `1px solid ${meta.color}40` }}>
+              <svg className="w-5 h-5" style={{ color: meta.color }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div>
+              <h3 className="text-white font-medium mb-1">Interpretation</h3>
+              <p className="text-[#b8a0a8] text-sm leading-relaxed">
+                {level === 'Low Suppression' &&
+                  'Low suppression detected. Facial expressions align closely with detected emotional cues — natural expressive behaviour with minimal regulatory signals.'}
+                {level === 'Moderate Suppression' &&
+                  `Moderate suppression detected. Visible emotion (${capitalise(dominant_emotion)}) shows some misalignment with underlying AU patterns${suppressed_emotion ? `, suggesting concealed ${suppressed_emotion}` : ''}. Emotional regulation is occurring.`}
+                {level === 'High Suppression' &&
+                  `High suppression detected. Strong mismatch between visible expression (${capitalise(dominant_emotion)}) and underlying AU activity${suppressed_emotion ? ` — predicted hidden emotion: ${suppressed_emotion}` : ''}. Significant emotional regulation is present.`}
+              </p>
             </div>
           </div>
         </div>
 
-        {/* Expression Delay Chart */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-          <div className="lg:col-span-2 bg-bg-card/60 backdrop-blur-xl border border-white/[0.08] rounded-2xl p-6">
-            <h3 className="text-sm font-medium text-text-muted uppercase tracking-wider mb-4">
-              Expression Delay Per Segment
-            </h3>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={expressionDelayData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" />
-                  <XAxis dataKey="segment" stroke="#6a6a7a" fontSize={12} />
-                  <YAxis stroke="#6a6a7a" fontSize={12} />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: '#15151f',
-                      border: '1px solid rgba(255,255,255,0.1)',
-                      borderRadius: '8px',
-                      color: '#f0f0f5'
-                    }}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="delay"
-                    stroke="#22c55e"
-                    strokeWidth={2}
-                    dot={{ fill: '#22c55e', strokeWidth: 2 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          {/* Insights */}
-          <div className="lg:col-span-1 bg-bg-card/60 backdrop-blur-xl border border-white/[0.08] rounded-2xl p-6">
-            <h3 className="text-sm font-medium text-text-muted uppercase tracking-wider mb-4">
-              Analysis Insights
-            </h3>
-            <div className="bg-gradient-subtle rounded-xl p-4 border border-white/[0.05]">
-              <div className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-lg bg-accent-cyan/20 flex items-center justify-center flex-shrink-0 mt-1">
-                  <svg className="w-4 h-4 text-accent-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <p className="text-text-secondary text-sm leading-relaxed">
-                  {results.insights}
-                </p>
-              </div>
-            </div>
-
-            {/* Quick Stats */}
-            <div className="mt-6 space-y-3">
-              <div className="flex items-center justify-between py-2 border-b border-white/[0.05]">
-                <span className="text-text-muted text-sm">Peak Suppression</span>
-                <span className="text-text-primary font-medium">78%</span>
-              </div>
-              <div className="flex items-center justify-between py-2 border-b border-white/[0.05]">
-                <span className="text-text-muted text-sm">Avg. Expression Delay</span>
-                <span className="text-text-primary font-medium">0.32s</span>
-              </div>
-              <div className="flex items-center justify-between py-2">
-                <span className="text-text-muted text-sm">Segments Analyzed</span>
-                <span className="text-text-primary font-medium">15</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Export Options */}
-        <div className="bg-bg-card/60 backdrop-blur-xl border border-white/[0.08] rounded-2xl p-6">
+        {/* ── Export ── */}
+        <div className="bg-[#0d1118]/80 backdrop-blur-xl border border-[#FF91AF]/10 rounded-2xl p-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div>
-              <h3 className="text-lg font-semibold text-text-primary">Export Your Results</h3>
-              <p className="text-text-muted text-sm">Download the analysis report in your preferred format</p>
+              <h3 className="text-lg font-medium text-white">Export Results</h3>
+              <p className="text-[#b8a0a8]/60 text-sm">Download the full analysis report as CSV</p>
             </div>
-            <div className="flex flex-wrap gap-3">
-              <button className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-accent-cyan to-accent-violet text-bg-primary font-medium rounded-xl hover:shadow-glow-cyan transition-all duration-300">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                Download Report (PDF)
-              </button>
-              <button className="inline-flex items-center gap-2 px-6 py-3 bg-white/[0.05] border border-white/[0.1] text-text-primary font-medium rounded-xl hover:bg-white/[0.08] hover:border-accent-violet transition-all duration-300">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                </svg>
-                Export CSV
-              </button>
-            </div>
+            <button onClick={handleExportCSV}
+              className="inline-flex items-center gap-2 px-6 py-3 bg-[#FF91AF] text-[#0a0d12] font-medium rounded-xl hover:bg-[#FFa8c0] shadow-lg shadow-[#FF91AF]/20 transition-all">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              Export CSV
+            </button>
           </div>
         </div>
+
       </div>
     </div>
   )

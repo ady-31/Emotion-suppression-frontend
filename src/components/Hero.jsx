@@ -3,11 +3,23 @@ const Hero = () => {
     <section className="relative overflow-hidden bg-[#0a0d12]">
       {/* HERO SECTION - Brand Name Centered */}
       <div className="min-h-screen flex flex-col items-center justify-center relative">
-        {/* Background gradient */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0a0d12] via-[#0d1118] to-[#0a0d12]" />
+        {/* Background Video */}
+        <div className="absolute inset-0 z-0">
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="w-full h-full object-cover opacity-40"
+          >
+            <source src="/vid3.mp4" type="video/mp4" />
+          </video>
+          {/* Dark overlay for better text readability */}
+          <div className="absolute inset-0 bg-[#0a0d12]/60" />
+        </div>
         
         {/* Subtle radial glow */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[#FF91AF]/5 rounded-full blur-[150px]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[#FF91AF]/5 rounded-full blur-[150px] z-[1]" />
         
         {/* Center Brand Content */}
         <div className="relative z-10 text-center px-6">
