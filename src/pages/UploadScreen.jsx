@@ -1,6 +1,7 @@
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { registerUser } from '../services/api'
+import { useAuth } from '../context/AuthContext'
 
 const ACCEPTED_VIDEO_TYPES = ['video/mp4', 'video/x-msvideo', 'video/quicktime', 'video/x-matroska', 'video/webm']
 const ACCEPTED_EXTENSIONS  = ['.mp4', '.avi', '.mov', '.mkv', '.webm']
@@ -15,6 +16,18 @@ const UploadScreen = () => {
   const [isSubmitting,    setIsSubmitting]    = useState(false)
   const videoInputRef = useRef(null)
   const navigate      = useNavigate()
+  const { user }      = useAuth()
+
+  // Pre-fill name & email when user is logged in
+  useEffect(() => {
+    if (user) {
+      setUserForm(prev => ({
+        ...prev,
+        name:  prev.name  || user.name  || '',
+        email: prev.email || user.email || '',
+      }))
+    }
+  }, [user])
 
   // ── Validation ────────────────────────────────────────────────────────────
   const validateForm = () => {
@@ -316,7 +329,13 @@ const UploadScreen = () => {
           </button>
 
           <p className="text-center text-[#b8a0a8]/60 text-xs mt-4">
-            Your data is processed securely and not stored permanently
+            {user
+              ? <span>Signed in as <span className="text-[#FF91AF]">{user.email}</span> — results will be saved automatically</span>
+              : <span>
+                  <Link to="/login" className="text-[#FF91AF] hover:underline">Sign in</Link>
+                  {' '}to save results to your account
+                </span>
+            }
           </p>
         </div>
       </div>

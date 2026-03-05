@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 import {
   AreaChart, Area,
   XAxis, YAxis,
@@ -30,6 +31,7 @@ const capitalise = (s) => s ? s.charAt(0).toUpperCase() + s.slice(1) : '—'
 // ── Component ──────────────────────────────────────────────────────────────────
 const ResultsScreen = () => {
   const navigate = useNavigate()
+  const { user } = useAuth()
   const [results,    setResults]    = useState(null)
   const [uploadData, setUploadData] = useState(null)
   const [videoUrl,   setVideoUrl]   = useState(null)
@@ -113,14 +115,46 @@ const ResultsScreen = () => {
               {uploadData?.fileName ? `Video: ${uploadData.fileName}` : 'Analysis complete'}
             </p>
           </div>
-          <Link to="/upload"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-[#0d1118] border border-[#FF91AF]/20 rounded-xl text-white hover:border-[#FF91AF]/50 transition-all">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-            </svg>
-            Analyse New Video
-          </Link>
+          <div className="flex flex-wrap items-center gap-3">
+            {user && (
+              <>
+                <Link to="/dashboard"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#FF91AF]/10 border border-[#FF91AF]/30 rounded-xl text-[#FF91AF] text-sm hover:bg-[#FF91AF]/20 hover:border-[#FF91AF]/60 transition-all">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                      d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                  View All Users
+                </Link>
+                <Link to="/dashboard"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#0d1118] border border-[#FF91AF]/20 rounded-xl text-white text-sm hover:border-[#FF91AF]/50 transition-all">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                      d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  My Results
+                </Link>
+              </>
+            )}
+            {!user && (
+              <Link to="/login"
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#0d1118] border border-[#FF91AF]/20 rounded-xl text-[#b8a0a8] text-sm hover:border-[#FF91AF]/50 hover:text-white transition-all">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                    d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                </svg>
+                Sign in to save results
+              </Link>
+            )}
+            <Link to="/upload"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-[#0d1118] border border-[#FF91AF]/20 rounded-xl text-white hover:border-[#FF91AF]/50 transition-all">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+              </svg>
+              Analyse New Video
+            </Link>
+          </div>
         </div>
 
         {/* ── Video Player ── */}
@@ -351,6 +385,19 @@ const ResultsScreen = () => {
             <div>
               <h3 className="text-lg font-medium text-white">Export Results</h3>
               <p className="text-[#b8a0a8]/60 text-sm">Download the full analysis report as CSV</p>
+              {user ? (
+                <p className="text-green-400/80 text-xs mt-1 flex items-center gap-1">
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  Results saved to your account
+                </p>
+              ) : (
+                <p className="text-[#b8a0a8]/50 text-xs mt-1">
+                  <Link to="/login" className="text-[#FF91AF] hover:underline">Sign in</Link>
+                  {' '}to save results to your account
+                </p>
+              )}
             </div>
             <button onClick={handleExportCSV}
               className="inline-flex items-center gap-2 px-6 py-3 bg-[#FF91AF] text-[#0a0d12] font-medium rounded-xl hover:bg-[#FFa8c0] shadow-lg shadow-[#FF91AF]/20 transition-all">

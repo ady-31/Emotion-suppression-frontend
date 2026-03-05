@@ -51,7 +51,10 @@ const ProcessingScreen = () => {
       setProgress(20)
 
       // ← actual network call (can take 30-120 s for a full video)
-      const result = await analyzeVideo(videoFile)
+      const uploadPayload = JSON.parse(sessionStorage.getItem('uploadData') || '{}')
+      const userEmail     = uploadPayload.userEmail  || null
+      const fileName      = uploadPayload.fileName   || videoFile.name || null
+      const result = await analyzeVideo(videoFile, userEmail, fileName)
 
       setCompletedSteps([0, 1])
       setProgress(55)
