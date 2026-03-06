@@ -127,11 +127,9 @@ const ProcessingScreen = () => {
 
   // ── Main layout ────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-[#0a0d12] p-4 md:p-6 relative overflow-hidden">
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-[#FF91AF]/[0.04] rounded-full blur-[150px]" />
-        <div className="absolute bottom-0 right-1/4 w-[600px] h-[600px] bg-[#FF91AF]/[0.02] rounded-full blur-[150px]" />
-      </div>
+    <div className="min-h-screen p-4 md:p-6 relative overflow-hidden bg-cover bg-center bg-no-repeat" style={{ backgroundImage: 'url(/img/pink3.jpg)' }}>
+      {/* Background overlay for readability */}
+      <div className="absolute inset-0 bg-black/60 pointer-events-none" />
 
       <div className="max-w-4xl mx-auto relative z-10">
         <div className="text-center py-10 mb-8">

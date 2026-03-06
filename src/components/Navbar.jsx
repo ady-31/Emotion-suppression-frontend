@@ -32,47 +32,16 @@ const Navbar = () => {
 
   return (
     <nav 
-      className={`fixed top-0 left-0 right-0 z-50 backdrop-blur-xl border-b border-white/[0.08] transition-all duration-300 ${
-        scrolled ? 'bg-bg-primary/95 shadow-lg shadow-black/30' : 'bg-bg-primary/80'
-      }`}
+      className="fixed top-0 left-0 right-0 z-50 bg-transparent"
     >
-      <div className="max-w-[1200px] mx-auto px-6 py-4 flex items-center justify-between">
+      <div className="max-w-[1200px] mx-auto px-2 py-4 flex items-center justify-between">
         {/* Logo */}
-        <div className="flex items-center gap-2.5 text-xl font-semibold">
-          <span className="text-accent-cyan text-2xl">🧠</span>
+        <div className="flex items-center text-xl font-semibold ml-1">
           <span>Suppresense</span>
         </div>
 
         {/* Navigation Links */}
-        <ul className="hidden md:flex items-center gap-8 list-none">
-          <li>
-            <a 
-              href="#what-it-does" 
-              onClick={(e) => handleSmoothScroll(e, '#what-it-does')}
-              className="text-text-secondary hover:text-text-primary transition-colors duration-200 text-[0.95rem]"
-            >
-              Features
-            </a>
-          </li>
-          <li>
-            <a 
-              href="#how-it-works"
-              onClick={(e) => handleSmoothScroll(e, '#how-it-works')}
-              className="text-text-secondary hover:text-text-primary transition-colors duration-200 text-[0.95rem]"
-            >
-              How It Works
-            </a>
-          </li>
-          <li>
-            <a 
-              href="#use-cases"
-              onClick={(e) => handleSmoothScroll(e, '#use-cases')}
-              className="text-text-secondary hover:text-text-primary transition-colors duration-200 text-[0.95rem]"
-            >
-              Use Cases
-            </a>
-          </li>
-
+        <ul className="hidden md:flex items-center gap-4 list-none mr-2">
           {user ? (
             /* ── Logged-in state ── */
             <>
@@ -105,20 +74,23 @@ const Navbar = () => {
             /* ── Guest state ── */
             <>
               <li>
-                <Link
-                  to="/login"
-                  className="px-4 py-2 rounded-md text-text-secondary hover:text-text-primary border border-white/[0.08] hover:border-[#FF91AF]/40 transition-all duration-200 text-[0.95rem]"
-                >
-                  Sign In
-                </Link>
-              </li>
-              <li>
                 <button 
                   onClick={() => navigate('/upload')}
-                  className="px-5 py-2.5 bg-gradient-subtle border border-white/[0.08] rounded-md text-text-secondary hover:text-text-primary hover:border-accent-cyan transition-all duration-200 text-[0.95rem]"
+                  className="px-8 py-2 bg-gradient-subtle border border-white/[0.08] rounded-full text-text-secondary hover:text-text-primary hover:border-accent-cyan transition-all duration-200 text-[0.95rem]"
                 >
-                  Get Started
+                  Try
                 </button>
+              </li>
+              <li>
+                <Link
+                  to="/login"
+                  className="px-7 py-2 flex items-center justify-center rounded-full text-text-secondary hover:text-text-primary border border-white/[0.15] hover:border-[#FF91AF]/60 transition-all duration-200"
+                  title="Sign In"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                  </svg>
+                </Link>
               </li>
             </>
           )}

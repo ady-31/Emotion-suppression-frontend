@@ -69,12 +69,9 @@ const LoginScreen = () => {
     } text-white placeholder-[#b8a0a8]/40 focus:outline-none focus:border-[#FF91AF]/60 transition-colors text-sm`
 
   return (
-    <div className="min-h-screen bg-[#0a0d12] flex items-center justify-center p-6 relative overflow-hidden">
-      {/* Background gradients */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-[#FF91AF]/[0.05] rounded-full blur-[120px]" />
-        <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-[#FF91AF]/[0.03] rounded-full blur-[120px]" />
-      </div>
+    <div className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden bg-cover bg-center bg-no-repeat" style={{ backgroundImage: 'url(/img/bg.jpg)' }}>
+      {/* Background overlay */}
+      <div className="absolute inset-0 bg-black/60 pointer-events-none" />
 
       {/* Card */}
       <div className="relative z-10 w-full max-w-md">
