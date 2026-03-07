@@ -35,7 +35,6 @@ const UploadScreen = () => {
     if (!userForm.name.trim())  errors.name  = 'Name is required'
     if (!userForm.email.trim()) errors.email = 'Email is required'
     else if (!/\S+@\S+\.\S+/.test(userForm.email)) errors.email = 'Invalid email'
-    // Phone validation removed
     if (userForm.age && (isNaN(userForm.age) || userForm.age < 1 || userForm.age > 120))
       errors.age = 'Enter a valid age'
     setFormErrors(errors)
@@ -295,8 +294,6 @@ const UploadScreen = () => {
                 className={`w-full px-4 py-3 rounded-xl bg-[#0a0d12] border ${formErrors.email ? 'border-red-500/60' : 'border-[#FF91AF]/20'} text-white placeholder-[#b8a0a8]/40 focus:outline-none focus:border-[#FF91AF]/60 transition-colors text-sm`} />
               {formErrors.email && <p className="text-red-400 text-xs mt-1">{formErrors.email}</p>}
             </div>
-
-
 
             {/* Age & Gender */}
             <div className="flex gap-4">
