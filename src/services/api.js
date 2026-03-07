@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = 'https://emotion-suppression-backend.onrender.com';
 
 // ── helpers ────────────────────────────────────────────────────────────────────
 const authHeaders = (token) => ({
