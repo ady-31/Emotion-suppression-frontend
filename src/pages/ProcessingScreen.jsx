@@ -127,18 +127,18 @@ const ProcessingScreen = () => {
 
   // ── Main layout ────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen p-4 md:p-6 relative overflow-hidden bg-cover bg-center bg-no-repeat" style={{ backgroundImage: 'url(/img/pink3.jpg)' }}>
+    <div className="min-h-screen flex items-center justify-center p-4 md:p-6 relative bg-cover bg-center bg-no-repeat" style={{ backgroundImage: 'url(/img/christoph-keil-KTKvnZ42QQE-unsplash.jpg)' }}>
       {/* Background overlay for readability */}
       <div className="absolute inset-0 bg-black/60 pointer-events-none" />
 
-      <div className="max-w-4xl mx-auto relative z-10">
-        <div className="text-center py-10 mb-8">
+      <div className="max-w-4xl w-full flex flex-col items-center justify-center gap-6 relative z-10">
+        <div className="text-center">
           <h1 className="text-2xl md:text-3xl font-light text-white">Analysing Emotion Suppression</h1>
           <p className="text-[#b8a0a8] mt-2">Please wait — video analysis can take up to 60 seconds</p>
         </div>
 
         {/* Progress bar */}
-        <div className="bg-[#0d1118]/80 backdrop-blur-xl border border-[#FF91AF]/10 rounded-2xl p-6 mb-6">
+        <div className="w-full max-w-lg bg-[#0d1118]/80 backdrop-blur-xl border border-[#FF91AF]/10 rounded-2xl p-6">
           <div className="flex items-center justify-between mb-3">
             <span className="text-white text-sm font-medium">{signals.currentOperation}</span>
             <span className="text-[#FF91AF] font-bold">{progress}%</span>
@@ -152,7 +152,7 @@ const ProcessingScreen = () => {
         </div>
 
         {/* Steps list */}
-        <div className="bg-[#0d1118]/80 backdrop-blur-xl border border-[#FF91AF]/10 rounded-2xl p-6 mb-6">
+        <div className="w-full max-w-lg bg-[#0d1118]/80 backdrop-blur-xl border border-[#FF91AF]/10 rounded-2xl p-6">
           <h3 className="text-sm font-medium text-[#b8a0a8]/60 uppercase tracking-wider mb-5">
             Pipeline Steps
           </h3>
@@ -200,7 +200,7 @@ const ProcessingScreen = () => {
 
         {/* File info */}
         {uploadData && (
-          <div className="bg-[#0d1118]/80 backdrop-blur-xl border border-[#FF91AF]/10 rounded-2xl p-5">
+          <div className="w-full max-w-lg bg-[#0d1118]/80 backdrop-blur-xl border border-[#FF91AF]/10 rounded-2xl p-5">
             <h3 className="text-xs font-medium text-[#b8a0a8]/60 uppercase tracking-wider mb-3">Video</h3>
             <p className="text-white text-sm font-medium truncate">{uploadData.fileName}</p>
             {uploadData.userName && (

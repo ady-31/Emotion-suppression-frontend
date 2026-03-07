@@ -1,3 +1,68 @@
+/* Modern glassmorphism card for premium SaaS login UI */
+.modern-glassmorphism-card {
+  background: rgba(26, 5, 51, 0.70);
+  border-radius: 1.5rem;
+  box-shadow: 0 8px 60px 0 rgba(162, 89, 255, 0.22);
+  backdrop-filter: blur(32px) saturate(200%);
+  -webkit-backdrop-filter: blur(32px) saturate(200%);
+  border: 2px solid rgba(162, 89, 255, 0.18);
+  border-bottom: 3px solid rgba(255, 255, 255, 0.10);
+  border-right: 3px solid rgba(162, 89, 255, 0.10);
+  position: relative;
+  overflow: hidden;
+}
+
+.modern-title {
+  letter-spacing: 0.09em;
+  text-shadow: 0 2px 24px #a259ffcc, 0 1px 2px #1a0533;
+}
+/* Futuristic glassmorphism for login card - dark pink clean UI */
+.futuristic-glass-pink {
+  background: rgba(43, 5, 21, 0.70);
+  border-radius: 1.5rem;
+  box-shadow: 0 8px 40px 0 rgba(255, 145, 175, 0.15);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 2px solid rgba(255, 145, 175, 0.18);
+  border-bottom: 3px solid rgba(255, 168, 192, 0.18);
+  border-right: 3px solid rgba(255, 145, 175, 0.10);
+  position: relative;
+  overflow: hidden;
+}
+
+.futuristic-title-pink {
+  letter-spacing: 0.08em;
+  text-shadow: 0 2px 16px #FF91AF99, 0 1px 2px #2B0515;
+}
+/* Futuristic glassmorphism for login card */
+.futuristic-glass {
+  background: rgba(45, 10, 74, 0.70);
+  border-radius: 1.5rem;
+  box-shadow: 0 8px 40px 0 rgba(162, 89, 255, 0.15);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 2px solid rgba(162, 89, 255, 0.18);
+  border-bottom: 3px solid rgba(252, 92, 125, 0.18);
+  border-right: 3px solid rgba(162, 89, 255, 0.10);
+  position: relative;
+  overflow: hidden;
+}
+
+.futuristic-title {
+  letter-spacing: 0.08em;
+  text-shadow: 0 2px 16px #a259ff99, 0 1px 2px #2d0a4a;
+}
+/* Glassmorphism effect for login card */
+.glass-card {
+  background: rgba(43, 5, 21, 0.60);
+  border-radius: 1.5rem;
+  box-shadow: 0 8px 32px 0 rgba(255, 169, 192, 0.15);
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  border: 1.5px solid rgba(255, 145, 175, 0.13);
+  border-bottom: 2.5px solid rgba(255, 145, 175, 0.18);
+  border-right: 2.5px solid rgba(255, 145, 175, 0.10);
+}
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

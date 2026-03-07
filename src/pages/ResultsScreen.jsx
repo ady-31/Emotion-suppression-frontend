@@ -98,12 +98,9 @@ const ResultsScreen = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0d12] p-4 md:p-6 relative overflow-hidden">
-      {/* Background glow */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 right-1/4 w-[600px] h-[600px] bg-[#FF91AF]/[0.04] rounded-full blur-[150px]" />
-        <div className="absolute bottom-0 left-1/4 w-[600px] h-[600px] bg-[#FF91AF]/[0.02] rounded-full blur-[150px]" />
-      </div>
+    <div className="min-h-screen p-4 md:p-6 relative bg-cover bg-center bg-no-repeat" style={{ backgroundImage: 'url(/img/christoph-keil-KTKvnZ42QQE-unsplash.jpg)' }}>
+      {/* Background overlay for readability */}
+      <div className="absolute inset-0 bg-black/60 pointer-events-none" />
 
       <div className="max-w-7xl mx-auto relative z-10">
 

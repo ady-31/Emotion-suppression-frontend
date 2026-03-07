@@ -66,11 +66,11 @@ const LoginScreen = () => {
   const inputClass = (field) =>
     `w-full px-4 py-3 rounded-xl bg-[#0a0d12] border ${
       errors[field] ? 'border-red-500/60' : 'border-[#FF91AF]/20'
-    } text-white placeholder-[#b8a0a8]/40 focus:outline-none focus:border-[#FF91AF]/60 transition-colors text-sm`
+    } text-white placeholder-[#b8a0a8]/40 focus:outline-none focus:border-[#FF91AF]/60 transition-colors text-sm`;
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden bg-cover bg-center bg-no-repeat" style={{ backgroundImage: 'url(/img/bg.jpg)' }}>
-      {/* Background overlay */}
+    <div className="min-h-screen h-screen flex items-center justify-center p-6 relative bg-cover bg-center bg-no-repeat" style={{ backgroundImage: 'url(/img/christoph-keil-KTKvnZ42QQE-unsplash.jpg)' }}>
+      {/* Background overlay for readability */}
       <div className="absolute inset-0 bg-black/60 pointer-events-none" />
 
       {/* Card */}
@@ -84,27 +84,27 @@ const LoginScreen = () => {
           Back to Home
         </Link>
 
-        <div className="bg-[#0d1118]/80 backdrop-blur-xl border border-[#FF91AF]/10 rounded-3xl p-8 shadow-2xl">
+        <div className="bg-[#0d1118]/80 backdrop-blur-xl border border-[#FF91AF]/10 rounded-2xl p-8 shadow-2xl">
           {/* Logo */}
           <div className="text-center mb-8">
             <div className="inline-flex items-center gap-2 text-[#FF91AF] mb-3">
               <span className="text-3xl">◉</span>
             </div>
-            <h1 className="text-2xl font-light text-white">Suppresense</h1>
+            <h1 className="text-2xl font-light text-white/80">Welcome Back</h1>
             <p className="text-[#b8a0a8] text-sm mt-1">
               {tab === 'login' ? 'Sign in to your account' : 'Create a new account'}
             </p>
           </div>
 
           {/* Tabs */}
-          <div className="flex bg-[#0a0d12] rounded-xl p-1 mb-6">
+          <div className="flex bg-[#2B0515]/60 rounded-xl p-1 mb-6 border border-[#FF91AF]/10">
             {['login', 'signup'].map((t) => (
               <button
                 key={t}
                 onClick={() => { setTab(t); setErrors({}); setApiError('') }}
                 className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
                   tab === t
-                    ? 'bg-[#FF91AF] text-[#0a0d12]'
+                    ? 'bg-[#FFA8C0] text-[#2B0515]'
                     : 'text-[#b8a0a8] hover:text-white'
                 }`}
               >
@@ -115,21 +115,23 @@ const LoginScreen = () => {
 
           {/* API Error */}
           {apiError && (
-            <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400 text-sm">
+            <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400 text-sm shadow-[0_0_8px_#FF91AF33]">
               {apiError}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
+
             {/* Name – signup only */}
             {tab === 'signup' && (
               <div>
-                <label className="block text-sm text-[#b8a0a8] mb-1.5">
-                  Full Name <span className="text-[#FF91AF]">*</span>
-                </label>
+                <label className="block text-sm text-[#b8a0a8] mb-1.5">Full Name <span className="text-[#FF91AF]">*</span></label>
                 <input
-                  type="text" name="name" value={form.name}
-                  onChange={handleChange} placeholder="Enter your full name"
+                  type="text"
+                  name="name"
+                  value={form.name}
+                  onChange={handleChange}
+                  placeholder="Enter full name"
                   className={inputClass('name')}
                 />
                 {errors.name && <p className="text-red-400 text-xs mt-1">{errors.name}</p>}
@@ -138,12 +140,13 @@ const LoginScreen = () => {
 
             {/* Email */}
             <div>
-              <label className="block text-sm text-[#b8a0a8] mb-1.5">
-                Email Address <span className="text-[#FF91AF]">*</span>
-              </label>
+              <label className="block text-sm text-[#b8a0a8] mb-1.5">Email Address <span className="text-[#FF91AF]">*</span></label>
               <input
-                type="email" name="email" value={form.email}
-                onChange={handleChange} placeholder="email@example.com"
+                type="email"
+                name="email"
+                value={form.email}
+                onChange={handleChange}
+                placeholder="email@example.com"
                 className={inputClass('email')}
               />
               {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email}</p>}
@@ -151,12 +154,13 @@ const LoginScreen = () => {
 
             {/* Password */}
             <div>
-              <label className="block text-sm text-[#b8a0a8] mb-1.5">
-                Password <span className="text-[#FF91AF]">*</span>
-              </label>
+              <label className="block text-sm text-[#b8a0a8] mb-1.5">Password <span className="text-[#FF91AF]">*</span></label>
               <input
-                type="password" name="password" value={form.password}
-                onChange={handleChange} placeholder={tab === 'signup' ? 'At least 8 characters' : 'Enter your password'}
+                type="password"
+                name="password"
+                value={form.password}
+                onChange={handleChange}
+                placeholder={tab === 'signup' ? 'At least 8 characters' : 'Enter your password'}
                 className={inputClass('password')}
               />
               {errors.password && <p className="text-red-400 text-xs mt-1">{errors.password}</p>}
@@ -165,17 +169,16 @@ const LoginScreen = () => {
             {/* Confirm Password – signup only */}
             {tab === 'signup' && (
               <div>
-                <label className="block text-sm text-[#b8a0a8] mb-1.5">
-                  Confirm Password <span className="text-[#FF91AF]">*</span>
-                </label>
+                <label className="block text-sm text-[#b8a0a8] mb-1.5">Confirm Password <span className="text-[#FF91AF]">*</span></label>
                 <input
-                  type="password" name="confirmPassword" value={form.confirmPassword}
-                  onChange={handleChange} placeholder="Repeat password"
+                  type="password"
+                  name="confirmPassword"
+                  value={form.confirmPassword}
+                  onChange={handleChange}
+                  placeholder="Repeat password"
                   className={inputClass('confirmPassword')}
                 />
-                {errors.confirmPassword && (
-                  <p className="text-red-400 text-xs mt-1">{errors.confirmPassword}</p>
-                )}
+                {errors.confirmPassword && <p className="text-red-400 text-xs mt-1">{errors.confirmPassword}</p>}
               </div>
             )}
 
@@ -184,8 +187,8 @@ const LoginScreen = () => {
               disabled={isLoading}
               className={`w-full mt-2 py-3.5 px-8 rounded-xl font-medium text-base transition-all duration-300 ${
                 isLoading
-                  ? 'bg-[#FF91AF]/40 text-[#b8a0a8]/50 cursor-not-allowed'
-                  : 'bg-[#FF91AF] text-[#0a0d12] shadow-lg shadow-[#FF91AF]/20 hover:bg-[#FFa8c0] hover:-translate-y-0.5'
+                  ? 'bg-[#FFA8C0]/40 text-[#b8a0a8]/50 cursor-not-allowed'
+                  : 'bg-[#FFA8C0] text-[#2B0515] shadow-lg shadow-[#FFA8C0]/20 hover:bg-[#FF91AF] hover:-translate-y-0.5'
               }`}
             >
               {isLoading ? (

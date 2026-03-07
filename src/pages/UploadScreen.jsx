@@ -10,7 +10,7 @@ const UploadScreen = () => {
   const [videoFile,       setVideoFile]       = useState(null)
   const [videoPreviewUrl, setVideoPreviewUrl] = useState(null)
   const [isDragging,      setIsDragging]      = useState(false)
-  const [userForm,        setUserForm]        = useState({ name: '', email: '', phone: '', age: '', gender: '' })
+  const [userForm,        setUserForm]        = useState({ name: '', email: '', age: '', gender: '' })
   const [formErrors,      setFormErrors]      = useState({})
   const [formSubmitted,   setFormSubmitted]   = useState(false)
   const [isSubmitting,    setIsSubmitting]    = useState(false)
@@ -35,9 +35,7 @@ const UploadScreen = () => {
     if (!userForm.name.trim())  errors.name  = 'Name is required'
     if (!userForm.email.trim()) errors.email = 'Email is required'
     else if (!/\S+@\S+\.\S+/.test(userForm.email)) errors.email = 'Invalid email'
-    if (!userForm.phone.trim()) errors.phone = 'Phone is required'
-    else if (!/^\d{10}$/.test(userForm.phone.replace(/[\s\-()]/g, '')))
-      errors.phone = 'Enter a valid 10-digit number'
+    // Phone validation removed
     if (userForm.age && (isNaN(userForm.age) || userForm.age < 1 || userForm.age > 120))
       errors.age = 'Enter a valid age'
     setFormErrors(errors)
@@ -48,6 +46,21 @@ const UploadScreen = () => {
     const { name, value } = e.target
     setUserForm(prev => ({ ...prev, [name]: value }))
     if (formErrors[name]) setFormErrors(prev => ({ ...prev, [name]: '' }))
+  }
+
+  const randomFill = () => {
+    const firstNames = ['Alex', 'Jordan', 'Sam', 'Taylor', 'Morgan', 'Casey', 'Riley', 'Avery', 'Quinn', 'Harper']
+    const lastNames  = ['Smith', 'Johnson', 'Lee', 'Patel', 'Garcia', 'Chen', 'Kim', 'Brown', 'Wilson', 'Singh']
+    const domains    = ['gmail.com', 'outlook.com', 'yahoo.com', 'mail.com']
+    const genders    = ['male', 'female', 'other', 'prefer_not']
+    const first = firstNames[Math.floor(Math.random() * firstNames.length)]
+    const last  = lastNames[Math.floor(Math.random() * lastNames.length)]
+    const name  = `${first} ${last}`
+    const email = `${first.toLowerCase()}.${last.toLowerCase()}@${domains[Math.floor(Math.random() * domains.length)]}`
+    const age   = String(Math.floor(Math.random() * 50) + 18)
+    const gender = genders[Math.floor(Math.random() * genders.length)]
+    setUserForm({ name, email, age, gender })
+    setFormErrors({})
   }
 
   // ── File helpers ──────────────────────────────────────────────────────────
@@ -253,6 +266,17 @@ const UploadScreen = () => {
             <p className="text-[#b8a0a8] text-sm">Enter the subject information for this analysis session</p>
           </div>
 
+          <button
+            type="button"
+            onClick={randomFill}
+            className="mb-4 w-full py-2.5 rounded-xl border border-dashed border-[#FF91AF]/30 text-[#FF91AF] text-sm font-medium hover:bg-[#FF91AF]/10 transition-colors flex items-center justify-center gap-2"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+            </svg>
+            Auto-fill with random data
+          </button>
+
           <div className="space-y-4 flex-1">
             {/* Name */}
             <div>
@@ -272,14 +296,7 @@ const UploadScreen = () => {
               {formErrors.email && <p className="text-red-400 text-xs mt-1">{formErrors.email}</p>}
             </div>
 
-            {/* Phone */}
-            <div>
-              <label className="block text-sm text-[#b8a0a8] mb-1.5">Phone Number <span className="text-[#FF91AF]">*</span></label>
-              <input type="tel" name="phone" value={userForm.phone} onChange={handleFormChange}
-                placeholder="Enter 10-digit phone number"
-                className={`w-full px-4 py-3 rounded-xl bg-[#0a0d12] border ${formErrors.phone ? 'border-red-500/60' : 'border-[#FF91AF]/20'} text-white placeholder-[#b8a0a8]/40 focus:outline-none focus:border-[#FF91AF]/60 transition-colors text-sm`} />
-              {formErrors.phone && <p className="text-red-400 text-xs mt-1">{formErrors.phone}</p>}
-            </div>
+
 
             {/* Age & Gender */}
             <div className="flex gap-4">
