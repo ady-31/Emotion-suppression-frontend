@@ -12,7 +12,7 @@ const Hero = () => {
             playsInline
             className="w-full h-full object-cover opacity-40"
           >
-            <source src="/vid3.mp4" type="video/mp4" />
+            <source src="/img/vid3.mp4" type="video/mp4" />
           </video>
           {/* Dark overlay for better text readability */}
           <div className="absolute inset-0 bg-[#0a0d12]/60" />
