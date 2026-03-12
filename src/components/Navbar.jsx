@@ -1,15 +1,22 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
 const Navbar = () => {
   const navigate = useNavigate()
   const { user, logout } = useAuth()
-  const [scrolled, setScrolled] = useState(false)
+  const [showNavbar, setShowNavbar] = useState(true)
+  const lastScrollY = useRef(window.pageYOffset)
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.pageYOffset > 50)
+      const currentScrollY = window.pageYOffset
+      if (currentScrollY > lastScrollY.current && currentScrollY > 80) {
+        setShowNavbar(false) // scrolling down
+      } else {
+        setShowNavbar(true) // scrolling up
+      }
+      lastScrollY.current = currentScrollY
     }
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
@@ -31,17 +38,18 @@ const Navbar = () => {
   const handleLogout = () => { logout(); navigate('/') }
 
   return (
-    <nav 
-      className="fixed top-0 left-0 right-0 z-50 bg-transparent"
+    <nav
+      className={`fixed top-0 left-0 right-0 z-50 bg-transparent shadow-none border-none transition-transform duration-300 ${showNavbar ? 'translate-y-0' : '-translate-y-full'}`}
     >
-      <div className="max-w-[1200px] mx-auto px-2 py-4 flex items-center justify-between">
+      <div className="max-w-[1200px] mx-auto px-2 py-4 flex items-center justify-between bg-transparent shadow-none border-none">
         {/* Logo */}
-        <div className="flex items-center text-xl font-semibold ml-1">
-          <span>Suppresense</span>
+        <div className="flex flex-col items-center ml-1">
+          <img src="/img/bg-rm-logo.jpeg" alt="SuppreSense Logo" className="h-10 w-auto object-contain" />
+          {/* <span className="text-white text-lg font-semibold mt-1">SuppreSense</span> */}
         </div>
 
         {/* Navigation Links */}
-        <ul className="hidden md:flex items-center gap-4 list-none mr-2">
+        <ul className="hidden md:flex items-center gap-4 list-none mr-2 bg-transparent border-none shadow-none">
           {user ? (
             /* ── Logged-in state ── */
             <>

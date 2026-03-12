@@ -6,7 +6,7 @@ const Footer = () => {
           {/* Brand */}
           <div className="inline-flex items-center gap-2.5 text-xl font-semibold mb-4">
             <span className="text-accent-cyan text-2xl">🧠</span>
-            <span>Suppresense</span>
+            <span>SuppreSense</span>
           </div>
           
           <p className="text-text-muted mb-6">

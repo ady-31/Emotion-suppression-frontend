@@ -10,12 +10,12 @@ const Hero = () => {
             muted
             loop
             playsInline
-            className="w-full h-full object-cover opacity-40"
+            className="w-full h-full object-cover opacity-100 brightness-50"
           >
             <source src="/img/vid3.mp4" type="video/mp4" />
           </video>
-          {/* Dark overlay for better text readability */}
-          <div className="absolute inset-0 bg-[#0a0d12]/60" />
+          {/* Optional: Reduce overlay for some readability, but much lighter */}
+          <div className="absolute inset-0 bg-[#0a0d12]/10" />
         </div>
         
         {/* Subtle radial glow */}
@@ -25,7 +25,7 @@ const Hero = () => {
         <div className="relative z-10 text-center px-6">
           {/* Brand Name */}
           <h1 className="hero-fade-in text-6xl md:text-7xl lg:text-8xl font-light text-white mb-6 tracking-tight">
-            Suppresense
+            SuppreSense
           </h1>
           
           {/* Tagline */}
