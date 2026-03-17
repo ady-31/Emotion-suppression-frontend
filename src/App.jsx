@@ -13,6 +13,8 @@ import ProcessingScreen from './pages/ProcessingScreen'
 import ResultsScreen from './pages/ResultsScreen'
 import LoginScreen from './pages/LoginScreen'
 import UserDashboard from './pages/UserDashboard'
+import AdminLogin from './pages/AdminLogin'
+import AdminDashboard from './pages/AdminDashboard'
 
 function LandingPage() {
   useEffect(() => {
@@ -60,6 +62,8 @@ function App() {
           <Route path="/results"    element={<ResultsScreen />} />
           <Route path="/login"      element={<LoginScreen />} />
           <Route path="/dashboard"  element={<UserDashboard />} />
+          <Route path="/admin-login" element={<AdminLogin />} />
+          <Route path="/admin-dashboard" element={<AdminDashboard />} />
         </Routes>
       </div>
     </AuthProvider>

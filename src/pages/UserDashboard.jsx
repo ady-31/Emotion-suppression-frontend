@@ -18,11 +18,16 @@ const fmt = (iso) => {
 }
 
 // ── My-Results card ────────────────────────────────────────────────────────────
-const ResultCard = ({ r, index }) => {
+const ResultCard = ({ r, index, onOpen }) => {
   const color = levelColor[r.level] || '#b8a0a8'
   const pct   = Math.round((r.normalized_score ?? 0) * 100)
   return (
-    <div className="bg-[#0d1118]/80 border border-[#FF91AF]/10 rounded-2xl p-5 hover:border-[#FF91AF]/30 transition-all">
+    <button
+      type="button"
+      onClick={() => onOpen(r)}
+      className="w-full text-left bg-[#0d1118]/80 border border-[#FF91AF]/10 rounded-2xl p-5 hover:border-[#FF91AF]/30 transition-all"
+      aria-label={`Open report for ${r.file_name || `Analysis ${index + 1}`}`}
+    >
       <div className="flex items-start justify-between gap-3 mb-3">
         <div>
           <p className="text-white font-medium text-sm truncate max-w-[200px]">{r.file_name || `Analysis #${index + 1}`}</p>
@@ -51,7 +56,7 @@ const ResultCard = ({ r, index }) => {
           </div>
         )}
       </div>
-    </div>
+    </button>
   )
 }
 
@@ -191,6 +196,20 @@ const UserDashboard = () => {
 
   const handleLogout = () => { logout(); navigate('/') }
 
+  const handleOpenResult = (result) => {
+    if (window.__videoObjectURL) {
+      delete window.__videoObjectURL
+    }
+
+    sessionStorage.setItem('analysisResults', JSON.stringify(result))
+    sessionStorage.setItem('uploadData', JSON.stringify({
+      fileName: result.file_name || 'Selected Analysis',
+      userName: user?.name,
+      userEmail: user?.email,
+    }))
+    navigate('/results')
+  }
+
   return (
     <div className="min-h-screen bg-[#0a0d12] p-4 md:p-6 relative overflow-hidden">
       {/* Background glow */}
@@ -203,11 +222,19 @@ const UserDashboard = () => {
 
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
-          <div>
+          <div className="flex-1">
             <h1 className="text-2xl md:text-3xl font-light text-white">My Dashboard</h1>
             <p className="text-[#b8a0a8] mt-1 text-sm">
               Welcome back, <span className="text-[#FF91AF]">{user?.name}</span>
             </p>
+            <div className="mt-4 flex items-center gap-2">
+              <Link to="/" className="flex items-center gap-2 text-[#FF91AF] font-medium text-sm hover:underline">
+                <svg className="w-5 h-5 text-[#FF91AF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+                Back to Home
+              </Link>
+            </div>
           </div>
           <div className="flex items-center gap-3">
             <Link
@@ -250,14 +277,6 @@ const UserDashboard = () => {
               </span>
             )}
           </button>
-          <button
-            onClick={() => handleTabChange('all')}
-            className={`flex-1 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
-              tab === 'all' ? 'bg-[#FF91AF] text-[#0a0d12]' : 'text-[#b8a0a8] hover:text-white'
-            }`}
-          >
-            View All Users
-          </button>
         </div>
 
         {/* ── My Results Tab ── */}
@@ -297,7 +316,7 @@ const UserDashboard = () => {
             {!loadingMy && myResults.length > 0 && (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {myResults.map((r, i) => (
-                  <ResultCard key={i} r={r} index={i} />
+                  <ResultCard key={i} r={r} index={i} onOpen={handleOpenResult} />
                 ))}
               </div>
             )}

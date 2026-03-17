@@ -1,4 +1,10 @@
+import { Link } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
+
 const Hero = () => {
+  const { user } = useAuth()
+  const isLoggedIn = Boolean(user) || localStorage.getItem('admin_logged_in') === 'true'
+
   return (
     <section className="relative overflow-hidden bg-[#0a0d12]">
       {/* HERO SECTION - Brand Name Centered */}
@@ -27,12 +33,29 @@ const Hero = () => {
           <h1 className="hero-fade-in text-6xl md:text-7xl lg:text-8xl font-light text-white mb-6 tracking-tight">
             SuppreSense
           </h1>
-          
           {/* Tagline */}
           <p className="hero-fade-in-delay-1 text-lg md:text-xl text-[#b8a0a8] font-light tracking-wide italic">
             "Detecting what isn't expressed"
           </p>
-          
+
+          {/* Login Buttons (guest only) */}
+          {!isLoggedIn && (
+            <div className="hero-fade-in-delay-2 mt-10 flex flex-col md:flex-row items-center justify-center gap-4">
+              <Link
+                to="/login"
+                className="px-8 py-3 bg-[#FF91AF] text-[#0a0d12] font-semibold rounded-xl text-lg shadow-md hover:bg-[#FFa8c0] transition-all"
+              >
+                User Login
+              </Link>
+              <Link
+                to="/admin-login"
+                className="px-8 py-3 bg-[#0d1118] border border-[#FF91AF]/30 text-[#FF91AF] font-semibold rounded-xl text-lg shadow-md hover:bg-[#FF91AF]/10 hover:text-white transition-all"
+              >
+                Admin Login
+              </Link>
+            </div>
+          )}
+
           {/* Scroll indicator */}
           <div className="hero-fade-in-delay-2 mt-20 flex flex-col items-center gap-3 text-[#FF91AF]/50">
             <span className="text-xs tracking-widest uppercase font-mono">Scroll to explore</span>

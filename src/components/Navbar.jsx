@@ -35,7 +35,11 @@ const Navbar = () => {
     }
   }
 
-  const handleLogout = () => { logout(); navigate('/') }
+  const handleLogout = () => {
+    localStorage.removeItem('admin_logged_in')
+    logout()
+    navigate('/')
+  }
 
   return (
     <nav
@@ -54,28 +58,21 @@ const Navbar = () => {
             /* ── Logged-in state ── */
             <>
               <li>
-                <Link
-                  to="/dashboard"
-                  className="text-text-secondary hover:text-text-primary transition-colors duration-200 text-[0.95rem]"
+                <button
+                  onClick={() => navigate(user.role === 'admin' ? '/admin-dashboard' : '/dashboard')}
+                  className="flex items-center gap-2 px-3 py-2 rounded-full text-[#FF91AF] bg-[#FF91AF]/10 border border-[#FF91AF]/20 hover:bg-[#FF91AF]/20 transition-all text-[0.95rem]"
+                  style={{ fontWeight: 'bold' }}
                 >
-                  My Results
-                </Link>
+                  {user.name}
+                </button>
               </li>
               <li>
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#FF91AF]/10 border border-[#FF91AF]/20">
-                    <div className="w-6 h-6 rounded-full bg-[#FF91AF]/30 flex items-center justify-center">
-                      <span className="text-[#FF91AF] text-xs font-bold">{user.name?.[0]?.toUpperCase()}</span>
-                    </div>
-                    <span className="text-[#FF91AF] text-sm font-medium max-w-[100px] truncate">{user.name}</span>
-                  </div>
-                  <button
-                    onClick={handleLogout}
-                    className="px-4 py-2 rounded-full text-[#b8a0a8] hover:text-white border border-white/[0.08] hover:border-red-400/30 transition-all text-[0.9rem]"
-                  >
-                    Sign Out
-                  </button>
-                </div>
+                <button
+                  onClick={handleLogout}
+                  className="px-4 py-2 rounded-full text-[#b8a0a8] hover:text-white border border-white/[0.08] hover:border-red-400/30 transition-all text-[0.9rem]"
+                >
+                  Sign Out
+                </button>
               </li>
             </>
           ) : (
