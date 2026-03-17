@@ -105,37 +105,51 @@ const UserRow = ({ userData, expanded, onToggle }) => (
 
 const AdminDashboard = () => {
   const navigate = useNavigate()
-  const { user, token, logout } = useAuth()
+  const { user, token, logout, loading: authLoading } = useAuth()
   const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [expandedUser, setExpandedUser] = useState(null)
 
   useEffect(() => {
-    const hasAdminSession = user?.role === 'admin' || localStorage.getItem('admin_logged_in') === 'true'
-    if (!hasAdminSession) {
+    if (authLoading) return
+
+    const isAdmin = user?.role === 'admin'
+    if (!token || !isAdmin) {
       navigate('/admin-login')
       return
     }
     fetchAllUsers()
-  }, [user])
+  }, [authLoading, user, token])
 
   const fetchAllUsers = async () => {
+    if (!token) {
+      setError('Authentication required. Please sign in again.')
+      navigate('/admin-login')
+      return
+    }
+
     setLoading(true)
     setError('')
     try {
-      const authToken = token || localStorage.getItem('auth_token')
-      const data = await getAllUsers(authToken)
+      const data = await getAllUsers(token)
       setUsers(data.users || [])
     } catch (err) {
-      setError(err.message || 'Failed to load users')
+      if (err.status === 401) {
+        setError('Authentication required. Your admin session is missing, invalid, or expired. Please sign in again.')
+        logout()
+        navigate('/admin-login')
+      } else if (err.status === 403) {
+        setError('Access denied. Your account is authenticated but does not have admin permissions.')
+      } else {
+        setError(err.message || 'Failed to load users')
+      }
     } finally {
       setLoading(false)
     }
   }
 
   const handleLogout = () => {
-    localStorage.removeItem('admin_logged_in')
     logout()
     navigate('/')
   }

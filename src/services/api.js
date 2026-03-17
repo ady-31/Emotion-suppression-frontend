@@ -11,7 +11,9 @@ const authHeaders = (token) => ({
 const handleResponse = async (res) => {
   if (!res.ok) {
     const err = await res.json().catch(() => ({ detail: 'Request failed' }));
-    throw new Error(err.detail || 'Request failed');
+    const error = new Error(err.detail || 'Request failed');
+    error.status = res.status;
+    throw error;
   }
   return res.json();
 };
@@ -71,6 +73,24 @@ export const loginUser = async ({ email, password }) => {
   return handleResponse(response);
 };
 
+export const loginAdmin = async ({ email, password }) => {
+  const response = await fetch(`${API_BASE_URL}/api/admin/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password }),
+  });
+  return handleResponse(response);
+};
+
+export const signupAdmin = async ({ name, email, password }) => {
+  const response = await fetch(`${API_BASE_URL}/api/admin/register`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, email, password }),
+  });
+  return handleResponse(response);
+};
+
 export const getCurrentUser = async (token) => {
   const response = await fetch(`${API_BASE_URL}/me`, {
     headers: authHeaders(token),
@@ -87,7 +107,7 @@ export const getMyResults = async (token) => {
 };
 
 export const getAllUsers = async (token) => {
-  const response = await fetch(`${API_BASE_URL}/users`, {
+  const response = await fetch(`${API_BASE_URL}/api/admin/users`, {
     headers: authHeaders(token),
   });
   return handleResponse(response);

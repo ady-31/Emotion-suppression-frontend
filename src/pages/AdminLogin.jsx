@@ -1,23 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { loginUser, signupUser } from '../services/api'
-
-const DEFAULT_ADMIN = {
-  name: 'Admin',
-  email: 'admin@example.com',
-  password: 'admin123'
-}
-
-const getStoredAdmins = () => {
-  try {
-    const raw = localStorage.getItem('admin_accounts')
-    const parsed = raw ? JSON.parse(raw) : []
-    return Array.isArray(parsed) ? parsed : []
-  } catch {
-    return []
-  }
-}
+import { loginAdmin, signupAdmin } from '../services/api'
 
 const AdminLogin = () => {
   const navigate = useNavigate()
@@ -64,89 +48,48 @@ const AdminLogin = () => {
     if (tab === 'signup' && !validateSignup()) return
 
     setIsLoading(true)
+    setApiError('')
+    setSuccess('')
+    const email = form.email.trim()
 
-    if (tab === 'login') {
-      try {
-        const data = await loginUser({ email: form.email.trim(), password: form.password })
+    try {
+      if (tab === 'login') {
+        const data = await loginAdmin({ email, password: form.password })
+        if (!data?.token) {
+          setApiError('Login failed: backend did not return a token')
+          return
+        }
         login(data.token, {
           ...(data.user || {}),
           name: data.user?.name || 'Admin',
-          email: data.user?.email || form.email.trim(),
+          email: data.user?.email || email,
           role: 'admin'
         })
-        localStorage.setItem('admin_logged_in', 'true')
         navigate('/admin-dashboard')
-        setIsLoading(false)
         return
-      } catch {
-        // Fall back to local admin accounts for local-only development mode.
-        const allAdmins = [DEFAULT_ADMIN, ...getStoredAdmins()]
-        const matched = allAdmins.find((admin) => (
-          admin.email.toLowerCase() === form.email.trim().toLowerCase() &&
-          admin.password === form.password
-        ))
-
-        if (!matched) {
-          setApiError('Invalid admin credentials')
-          setIsLoading(false)
-          return
-        }
-
-        localStorage.setItem('admin_logged_in', 'true')
-        const adminSession = {
-          name: matched.name || 'Admin',
-          email: matched.email,
-          role: 'admin'
-        }
-        const existingToken = localStorage.getItem('auth_token') || `admin-local-${Date.now()}`
-        login(existingToken, adminSession)
-        navigate('/admin-dashboard')
       }
-    } else {
-      try {
-        const data = await signupUser({
+
+      await signupAdmin({
           name: form.name.trim(),
-          email: form.email.trim(),
+          email,
           password: form.password
-        })
-        login(data.token, {
-          ...(data.user || {}),
-          name: data.user?.name || form.name.trim(),
-          email: data.user?.email || form.email.trim(),
-          role: 'admin'
-        })
-        localStorage.setItem('admin_logged_in', 'true')
-        navigate('/admin-dashboard')
-        setIsLoading(false)
-        return
-      } catch {
-        // Fall back to local admin account creation if backend signup is unavailable.
-        const storedAdmins = getStoredAdmins()
-        const allAdmins = [DEFAULT_ADMIN, ...storedAdmins]
-        const emailExists = allAdmins.some(
-          (admin) => admin.email.toLowerCase() === form.email.trim().toLowerCase()
-        )
-
-        if (emailExists) {
-          setApiError('An admin account with this email already exists')
-          setIsLoading(false)
-          return
-        }
-
-        const newAdmin = {
-          name: form.name.trim(),
-          email: form.email.trim(),
-          password: form.password
-        }
-
-        localStorage.setItem('admin_accounts', JSON.stringify([...storedAdmins, newAdmin]))
-        setSuccess('Admin account created locally. Sign in now.')
-        setTab('login')
-        setForm({ name: '', email: newAdmin.email, password: '', confirmPassword: '' })
+      })
+      setSuccess('Admin account created. Sign in now.')
+      setTab('login')
+      setForm({ name: '', email, password: '', confirmPassword: '' })
+    } catch (err) {
+      if (err.status === 401) {
+        setApiError('Invalid admin credentials')
+      } else if (err.status === 403) {
+        setApiError('Access denied. This account is not an admin')
+      } else if (tab === 'signup' && err.status === 404) {
+        setApiError('Admin signup is not available on backend yet (expected POST /api/admin/register)')
+      } else {
+        setApiError(err.message || (tab === 'login' ? 'Admin login failed' : 'Admin signup failed'))
       }
+    } finally {
+      setIsLoading(false)
     }
-
-    setIsLoading(false)
   }
 
   const inputClass = (field) =>

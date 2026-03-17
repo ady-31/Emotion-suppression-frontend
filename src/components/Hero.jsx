@@ -2,8 +2,8 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
 const Hero = () => {
-  const { user } = useAuth()
-  const isLoggedIn = Boolean(user) || localStorage.getItem('admin_logged_in') === 'true'
+  const { user, loading } = useAuth()
+  const isLoggedIn = !loading && Boolean(user)
 
   return (
     <section className="relative overflow-hidden bg-[#0a0d12]">

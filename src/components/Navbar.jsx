@@ -36,7 +36,6 @@ const Navbar = () => {
   }
 
   const handleLogout = () => {
-    localStorage.removeItem('admin_logged_in')
     logout()
     navigate('/')
   }
