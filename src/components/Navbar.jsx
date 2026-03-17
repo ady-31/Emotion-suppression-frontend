@@ -11,10 +11,10 @@ const Navbar = () => {
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.pageYOffset
-      if (currentScrollY > lastScrollY.current && currentScrollY > 80) {
-        setShowNavbar(false) // scrolling down
+      if (currentScrollY === 0) {
+        setShowNavbar(true)
       } else {
-        setShowNavbar(true) // scrolling up
+        setShowNavbar(false)
       }
       lastScrollY.current = currentScrollY
     }
@@ -44,8 +44,8 @@ const Navbar = () => {
       <div className="max-w-[1200px] mx-auto px-2 py-4 flex items-center justify-between bg-transparent shadow-none border-none">
         {/* Logo */}
         <div className="flex flex-col items-center ml-1">
-          <img src="/img/bg-rm-logo.jpeg" alt="SuppreSense Logo" className="h-10 w-auto object-contain" />
-          {/* <span className="text-white text-lg font-semibold mt-1">SuppreSense</span> */}
+          <img src="/img/emologo.jpeg" alt="SuppreSense Logo" className="h-10 w-auto object-contain" />
+          <span className="text-white text-lg font-semibold mt-1">SuppreSense</span>
         </div>
 
         {/* Navigation Links */}
@@ -63,7 +63,7 @@ const Navbar = () => {
               </li>
               <li>
                 <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#FF91AF]/10 border border-[#FF91AF]/20">
+                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#FF91AF]/10 border border-[#FF91AF]/20">
                     <div className="w-6 h-6 rounded-full bg-[#FF91AF]/30 flex items-center justify-center">
                       <span className="text-[#FF91AF] text-xs font-bold">{user.name?.[0]?.toUpperCase()}</span>
                     </div>
@@ -71,7 +71,7 @@ const Navbar = () => {
                   </div>
                   <button
                     onClick={handleLogout}
-                    className="px-4 py-2 rounded-md text-[#b8a0a8] hover:text-white border border-white/[0.08] hover:border-red-400/30 transition-all text-[0.9rem]"
+                    className="px-4 py-2 rounded-full text-[#b8a0a8] hover:text-white border border-white/[0.08] hover:border-red-400/30 transition-all text-[0.9rem]"
                   >
                     Sign Out
                   </button>
