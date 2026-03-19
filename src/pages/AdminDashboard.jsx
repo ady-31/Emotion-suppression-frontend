@@ -17,12 +17,67 @@ const fmt = (iso) => {
   })
 }
 
-const UserRow = ({ userData, expanded, onToggle }) => (
-  <div className="border border-[#FF91AF]/10 rounded-2xl overflow-hidden bg-[#0d1118]/60">
-    <button
-      onClick={onToggle}
-      className="w-full flex items-center justify-between px-5 py-4 hover:bg-[#FF91AF]/5 transition-colors text-left"
-    >
+const readDateValue = (value) => {
+  if (!value) return null
+  if (typeof value === 'object') return value.$date || value.date || null
+  return value
+}
+
+const safeToTime = (value) => {
+  const date = readDateValue(value)
+  if (!date) return 0
+  const time = new Date(date).getTime()
+  return Number.isNaN(time) ? 0 : time
+}
+
+const normalizeText = (value) => {
+  if (!value && value !== 0) return '—'
+  return String(value)
+    .replace(/_/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+const toTitleCase = (value) => {
+  const text = normalizeText(value)
+  if (text === '—') return text
+  return text.replace(/\b\w/g, (c) => c.toUpperCase())
+}
+
+const getUserKey = (userData, index) => {
+  if (userData.email) return userData.email
+  if (userData._id) return userData._id
+  if (userData.id) return String(userData.id)
+  return `${userData.name || 'user'}-${index}`
+}
+
+const scoreToPercent = (value) => {
+  const num = Number(value)
+  if (!Number.isFinite(num)) return '—'
+  return `${Math.round(num * 100)}%`
+}
+
+const DetailField = ({ label, value }) => {
+  const displayValue = value === null || value === undefined || value === '' ? '—' : value
+  return (
+    <div className="bg-white/[0.03] border border-white/[0.05] rounded-xl px-3 py-2">
+      <p className="text-[11px] uppercase tracking-wider text-[#b8a0a8]/60 mb-1">{label}</p>
+      <p className="text-white text-sm break-words">{displayValue}</p>
+    </div>
+  )
+}
+
+const UserRow = ({ userData, isSelected, onSelect }) => (
+  <button
+    type="button"
+    onClick={onSelect}
+    className={`w-full border rounded-2xl px-5 py-4 text-left transition-all ${
+      isSelected
+        ? 'border-[#FF91AF]/50 bg-[#FF91AF]/10 shadow-[0_0_0_1px_#FF91AF33_inset]'
+        : 'border-[#FF91AF]/10 bg-[#0d1118]/60 hover:bg-[#FF91AF]/5 hover:border-[#FF91AF]/30'
+    }`}
+  >
+    <div className="flex items-center justify-between gap-3">
       <div className="flex items-center gap-4 min-w-0">
         <div className="w-10 h-10 rounded-full bg-[#FF91AF]/15 border border-[#FF91AF]/25 flex items-center justify-center flex-shrink-0">
           <span className="text-[#FF91AF] font-semibold text-sm">{userData.name?.[0]?.toUpperCase() ?? '?'}</span>
@@ -32,76 +87,144 @@ const UserRow = ({ userData, expanded, onToggle }) => (
           <p className="text-[#b8a0a8]/60 text-xs truncate">{userData.email || 'No email provided'}</p>
         </div>
       </div>
-      <div className="flex items-center gap-4">
-        <div className="text-right hidden sm:block">
-          <p className="text-[#b8a0a8]/60 text-xs">Analyses</p>
-          <p className="text-[#FF91AF] font-bold text-sm">{userData.result_count ?? userData.results?.length ?? 0}</p>
-        </div>
-        <svg
-          className={`w-4 h-4 text-[#b8a0a8] transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`}
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-        </svg>
+
+      <div className="text-right flex-shrink-0">
+        <p className="text-[#b8a0a8]/60 text-xs">Analyses</p>
+        <p className="text-[#FF91AF] font-bold text-sm">{userData.result_count ?? userData.results?.length ?? 0}</p>
       </div>
-    </button>
+    </div>
+  </button>
+)
 
-    {expanded && (
-      <div className="border-t border-[#FF91AF]/10 px-5 pb-5">
-        {(userData.subject?.phone || userData.subject?.age || userData.subject?.gender) && (
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4 mb-4">
-            {userData.subject.phone && (
-              <div className="bg-white/[0.03] rounded-xl px-3 py-2 text-xs">
-                <p className="text-[#b8a0a8]/60">Phone</p>
-                <p className="text-white">{userData.subject.phone}</p>
-              </div>
-            )}
-            {userData.subject.age && (
-              <div className="bg-white/[0.03] rounded-xl px-3 py-2 text-xs">
-                <p className="text-[#b8a0a8]/60">Age</p>
-                <p className="text-white">{userData.subject.age}</p>
-              </div>
-            )}
-            {userData.subject.gender && (
-              <div className="bg-white/[0.03] rounded-xl px-3 py-2 text-xs">
-                <p className="text-[#b8a0a8]/60">Gender</p>
-                <p className="text-white capitalize">{userData.subject.gender.replace('_', ' ')}</p>
-              </div>
-            )}
-          </div>
-        )}
+const UserDetailsPanel = ({ userData }) => {
+  if (!userData) {
+    return (
+      <div className="bg-[#0d1118]/70 border border-[#FF91AF]/10 rounded-2xl p-5 text-sm text-[#b8a0a8]/60">
+        Select a user account to view details.
+      </div>
+    )
+  }
 
-        {userData.results && userData.results.length > 0 ? (
-          <div className="space-y-2 mt-3">
-            <p className="text-xs text-[#b8a0a8]/60 uppercase tracking-wider mb-2">Analysis History</p>
-            {userData.results.map((result, index) => (
-              <div key={`${userData.email}-${index}`} className="flex items-center justify-between py-2 border-b border-[#FF91AF]/5 last:border-0 text-sm">
-                <div>
-                  <p className="text-white/80 text-xs truncate max-w-[180px]">{result.file_name || `Analysis #${index + 1}`}</p>
-                  <p className="text-[#b8a0a8]/50 text-[11px]">{fmt(result.created_at?.$date || result.created_at)}</p>
-                </div>
-                <span
-                  className="text-[11px] font-semibold px-2 py-0.5 rounded-full border flex-shrink-0"
-                  style={{
-                    color: levelColor[result.level] || '#b8a0a8',
-                    backgroundColor: `${levelColor[result.level] || '#b8a0a8'}18`,
-                    borderColor: `${levelColor[result.level] || '#b8a0a8'}40`,
-                  }}
+  const rawResults = Array.isArray(userData.results) ? [...userData.results] : []
+  const sortedResults = rawResults.sort((a, b) => {
+    const bDate = b.created_at || b.createdAt
+    const aDate = a.created_at || a.createdAt
+    return safeToTime(bDate) - safeToTime(aDate)
+  })
+
+  const analysesCount = userData.result_count ?? sortedResults.length ?? 0
+  const averageScore = sortedResults.length
+    ? scoreToPercent(
+      sortedResults.reduce((sum, result) => sum + (Number(result.normalized_score) || 0), 0) / sortedResults.length
+    )
+    : '—'
+  const lastAnalysis = sortedResults[0]
+    ? fmt(readDateValue(sortedResults[0].created_at || sortedResults[0].createdAt))
+    : '—'
+
+  const subjectData = userData.subject || {}
+  const subjectFields = [
+    { label: 'Phone', value: subjectData.phone || userData.phone || userData.phone_number || '—' },
+    { label: 'Age', value: subjectData.age || userData.age || '—' },
+    {
+      label: 'Gender',
+      value: toTitleCase(subjectData.gender || userData.gender || '—'),
+    },
+  ]
+
+  const accountFields = [
+    { label: 'Full Name', value: userData.name || '—' },
+    { label: 'Email', value: userData.email || '—' },
+    { label: 'Role', value: toTitleCase(userData.role || 'user') },
+    { label: 'User ID', value: userData._id || userData.id || userData.user_id || '—' },
+    {
+      label: 'Registered',
+      value: fmt(readDateValue(userData.created_at || userData.createdAt || userData.registered_at)),
+    },
+    {
+      label: 'Last Login',
+      value: fmt(readDateValue(userData.last_login || userData.lastLogin || userData.last_seen_at)),
+    },
+  ]
+
+  return (
+    <div className="bg-[#0d1118]/80 border border-[#FF91AF]/10 rounded-2xl p-5 lg:sticky lg:top-6">
+      <div className="mb-5 border-b border-[#FF91AF]/10 pb-4">
+        <p className="text-xs uppercase tracking-wider text-[#b8a0a8]/60 mb-2">Selected Account</p>
+        <h2 className="text-white text-xl font-light break-words">{userData.name || 'Unnamed User'}</h2>
+        <p className="text-[#FF91AF] text-sm break-all mt-1">{userData.email || 'No email provided'}</p>
+      </div>
+
+      <div className="grid grid-cols-3 gap-2 mb-5">
+        <DetailField label="Analyses" value={String(analysesCount)} />
+        <DetailField label="Avg Score" value={averageScore} />
+        <DetailField label="Last Activity" value={lastAnalysis} />
+      </div>
+
+      <div className="mb-5">
+        <p className="text-xs uppercase tracking-wider text-[#b8a0a8]/60 mb-2">Account Details</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          {accountFields.map((field) => (
+            <DetailField key={field.label} label={field.label} value={field.value} />
+          ))}
+        </div>
+      </div>
+
+      <div className="mb-5">
+        <p className="text-xs uppercase tracking-wider text-[#b8a0a8]/60 mb-2">Subject Profile</p>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          {subjectFields.map((field) => (
+            <DetailField key={field.label} label={field.label} value={field.value} />
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <p className="text-xs uppercase tracking-wider text-[#b8a0a8]/60 mb-2">Analysis History</p>
+        {sortedResults.length > 0 ? (
+          <div className="space-y-2 max-h-[360px] overflow-y-auto pr-1">
+            {sortedResults.map((result, index) => {
+              const color = levelColor[result.level] || '#b8a0a8'
+              return (
+                <div
+                  key={`${userData.email || userData.name || 'user'}-${index}`}
+                  className="bg-white/[0.03] border border-white/[0.05] rounded-xl p-3"
                 >
-                  {Math.round((result.normalized_score ?? 0) * 100)}%
-                </span>
-              </div>
-            ))}
+                  <div className="flex items-start justify-between gap-3 mb-2">
+                    <div className="min-w-0">
+                      <p className="text-white text-sm truncate">{result.file_name || `Analysis #${index + 1}`}</p>
+                      <p className="text-[#b8a0a8]/60 text-[11px] mt-0.5">
+                        {fmt(readDateValue(result.created_at || result.createdAt))}
+                      </p>
+                    </div>
+                    <span
+                      className="text-[11px] font-semibold px-2 py-0.5 rounded-full border flex-shrink-0"
+                      style={{
+                        color,
+                        backgroundColor: `${color}18`,
+                        borderColor: `${color}40`,
+                      }}
+                    >
+                      {scoreToPercent(result.normalized_score)}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <DetailField label="Suppression Level" value={result.level || '—'} />
+                    <DetailField label="Dominant Emotion" value={toTitleCase(result.dominant_emotion || '—')} />
+                    <DetailField label="Suppressed Emotion" value={toTitleCase(result.suppressed_emotion || '—')} />
+                    <DetailField label="Confidence" value={scoreToPercent(result.confidence_score ?? result.confidence)} />
+                  </div>
+                </div>
+              )
+            })}
           </div>
         ) : (
-          <p className="text-[#b8a0a8]/40 text-xs mt-3">No analyses yet</p>
+          <p className="text-[#b8a0a8]/40 text-xs">No analyses yet</p>
         )}
       </div>
-    )}
-  </div>
-)
+    </div>
+  )
+}
 
 const AdminDashboard = () => {
   const navigate = useNavigate()
@@ -109,7 +232,7 @@ const AdminDashboard = () => {
   const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [expandedUser, setExpandedUser] = useState(null)
+  const [selectedUserKey, setSelectedUserKey] = useState('')
 
   useEffect(() => {
     if (authLoading) return
@@ -153,6 +276,20 @@ const AdminDashboard = () => {
     logout()
     navigate('/')
   }
+
+  useEffect(() => {
+    if (users.length === 0) {
+      setSelectedUserKey('')
+      return
+    }
+
+    const stillExists = users.some((userData, index) => getUserKey(userData, index) === selectedUserKey)
+    if (!stillExists) {
+      setSelectedUserKey(getUserKey(users[0], 0))
+    }
+  }, [users, selectedUserKey])
+
+  const selectedUser = users.find((userData, index) => getUserKey(userData, index) === selectedUserKey) || null
 
   return (
     <div className="min-h-screen bg-[#0a0d12] p-4 md:p-6 relative overflow-hidden">
@@ -226,18 +363,25 @@ const AdminDashboard = () => {
         )}
 
         {!loading && !error && users.length > 0 && (
-          <div className="space-y-3">
-            <p className="text-xs text-[#b8a0a8]/60 uppercase tracking-wider mb-4">
-              {users.length} registered account{users.length !== 1 ? 's' : ''}
-            </p>
-            {users.map((userData, index) => (
-              <UserRow
-                key={userData.email || index}
-                userData={userData}
-                expanded={expandedUser === index}
-                onToggle={() => setExpandedUser(expandedUser === index ? null : index)}
-              />
-            ))}
+          <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_430px] gap-4 lg:gap-6 items-start">
+            <div className="space-y-3">
+              <p className="text-xs text-[#b8a0a8]/60 uppercase tracking-wider mb-4">
+                {users.length} registered account{users.length !== 1 ? 's' : ''}
+              </p>
+              {users.map((userData, index) => {
+                const key = getUserKey(userData, index)
+                return (
+                  <UserRow
+                    key={key}
+                    userData={userData}
+                    isSelected={selectedUserKey === key}
+                    onSelect={() => setSelectedUserKey(key)}
+                  />
+                )
+              })}
+            </div>
+
+            <UserDetailsPanel userData={selectedUser} />
           </div>
         )}
       </div>
